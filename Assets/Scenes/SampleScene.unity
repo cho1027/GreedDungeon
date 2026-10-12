@@ -119,6 +119,84 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &512231890
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 512231892}
+  - component: {fileID: 512231891}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &512231891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512231890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae348ad12239e504d837868b1eb3ab4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
+  _gridX: 13
+  _gridY: 13
+  _roomCount: 20
+  _expandChance: 0.5
+  _maxTryCount: 500
+  _maxRegenerateCount: 20
+  _roomSpacing: {x: 20, y: 12}
+  _startRoomPrefab: {fileID: -1901346138513711425, guid: 2cb2385f552f5df4da5cc6b66e95acf1, type: 3}
+  _bossRoomPrefab: {fileID: -1901346138513711425, guid: 5eb5c34260ebd854d98a512ff3a852e7, type: 3}
+  _specialRooms:
+  - label: Gold
+    prefab: {fileID: -1901346138513711425, guid: a497a57d000da904d91cd77943380070, type: 3}
+    count: 3
+  _normalRoomPrefabs:
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+--- !u!4 &512231892
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512231890}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.66235, y: -0.34655, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +551,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.36536, y: -0.9187, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 6.523206, y: 6.523206, z: 6.523206}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -485,3 +563,4 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 1632407357}
+  - {fileID: 512231892}
