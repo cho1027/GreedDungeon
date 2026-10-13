@@ -154,6 +154,8 @@ MonoBehaviour:
   _expandChance: 0.5
   _maxTryCount: 500
   _maxRegenerateCount: 20
+  _autoSpacing: 1
+  _roomGap: {x: 4, y: 4}
   _roomSpacing: {x: 20, y: 12}
   _startRoomPrefab: {fileID: -1901346138513711425, guid: 2cb2385f552f5df4da5cc6b66e95acf1, type: 3}
   _bossRoomPrefab: {fileID: -1901346138513711425, guid: 5eb5c34260ebd854d98a512ff3a852e7, type: 3}
@@ -182,6 +184,7 @@ MonoBehaviour:
   - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
   - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
   - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
+  _player: {fileID: 1632407358}
 --- !u!4 &512231892
 Transform:
   m_ObjectHideFlags: 0
@@ -303,7 +306,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 4.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -429,6 +432,7 @@ GameObject:
   - component: {fileID: 1632407357}
   - component: {fileID: 1632407356}
   - component: {fileID: 1632407355}
+  - component: {fileID: 1632407358}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -556,6 +560,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1632407358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1632407354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1847a4d376857e147bffe9de4c0f62f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridPlayer
+  _moveTime: 0.1
+  _camera: {fileID: 519420031}
+  _fitCamera: 1
+  _cameraPadding: 0.5
+  _fitToCell: 1
+  _cellFill: 0.9
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

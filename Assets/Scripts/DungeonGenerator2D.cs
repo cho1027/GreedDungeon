@@ -36,7 +36,11 @@ public class DungeonGenerator2D : MonoBehaviour
     [SerializeField] private float _expandChance = 0.5f;        // 이웃 칸에 방을 만들 확률 (아이작: 50%)
     [SerializeField] private int _maxTryCount = 2000;           // 한 번의 시도 안에서의 반복 상한
     [SerializeField] private int _maxRegenerateCount = 50;      // 실패 시 처음부터 다시 만들 최대 횟수
-    [SerializeField] private Vector2 _roomSpacing = new Vector2(20f, 12f); // 방 한 칸의 월드 크기
+    [Tooltip("켜면 방 프리팹의 실제 크기(Scale 포함) + Room Gap 으로 간격을 자동 계산한다")]
+    [SerializeField] private bool _autoSpacing = true;
+    [Tooltip("방과 방 사이 여백 (타일 칸 수 단위). 옆 방이 카메라에 걸리면 값을 키우세요")]
+    [SerializeField] private Vector2 _roomGapCells = new Vector2(10f, 8f);
+    [SerializeField] private Vector2 _roomSpacing = new Vector2(20f, 12f); // 수동 간격 (자동 간격이 꺼져 있을 때)
 
     [Header("프리팹")]
     [SerializeField] private DungeonRoom _startRoomPrefab;
@@ -44,6 +48,10 @@ public class DungeonGenerator2D : MonoBehaviour
     [SerializeField] private List<SpecialRoom> _specialRooms = new List<SpecialRoom>();
     [Tooltip("일반 방 프리팹들. 안 나온 프리팹 위주로 선택됨")]
     [SerializeField] private List<DungeonRoom> _normalRoomPrefabs = new List<DungeonRoom>();
+
+    [Header("플레이어")]
+    [Tooltip("던전 생성 후 시작방 중앙에 배치할 플레이어")]
+    [SerializeField] private GridPlayer _player;
 
     // 북(+y) 남(-y) 동(+x) 서(-x)
     private static readonly Vector2Int[] Directions =
@@ -124,6 +132,7 @@ public class DungeonGenerator2D : MonoBehaviour
         }
 
         SpawnRooms();
+        PlacePlayer();
     }
 
     [ContextMenu("Clear")]
@@ -266,6 +275,7 @@ public class DungeonGenerator2D : MonoBehaviour
     {
         _rooms = new DungeonRoom[_gridX, _gridY];
         RefillPool();
+        Vector2 spacing = GetSpacing();
 
         foreach (var cell in _placed)
         {
@@ -277,7 +287,7 @@ public class DungeonGenerator2D : MonoBehaviour
             }
 
             DungeonRoom room = Instantiate(prefab, transform);
-            room.transform.localPosition = new Vector3(cell.x * _roomSpacing.x, cell.y * _roomSpacing.y, 0f);
+            room.transform.localPosition = new Vector3(cell.x * spacing.x, cell.y * spacing.y, 0f);
             room.transform.localRotation = Quaternion.identity;
             room.name = $"{prefab.name} ({cell.x}, {cell.y})";
 
@@ -297,6 +307,49 @@ public class DungeonGenerator2D : MonoBehaviour
                 HasRoom(cell.x + 1, cell.y),   // east
                 HasRoom(cell.x - 1, cell.y));  // west
         }
+    }
+
+    // 방 프리팹의 실제 월드 크기 + 여백으로 방 간격 계산 (프리팹 Scale이 커도 안 겹침)
+    private Vector2 GetSpacing()
+    {
+        if (!_autoSpacing) return _roomSpacing;
+
+        DungeonRoom reference = _startRoomPrefab != null ? _startRoomPrefab : null;
+        if (reference == null && _normalRoomPrefabs.Count > 0) reference = _normalRoomPrefabs[0];
+        if (reference == null) return _roomSpacing;
+
+        RoomGrid grid = reference.Grid;
+        if (grid == null) return _roomSpacing;
+
+        // 여백은 타일 칸 수 기준이라 프리팹 Scale이 커도 같은 비율로 벌어진다
+        return grid.WorldSize + _roomGapCells * grid.WorldCellSize;
+    }
+
+    private void PlacePlayer()
+    {
+        if (_player == null)
+        {
+            Debug.LogWarning("DungeonGenerator2D: Player 칸이 비어 있어서 플레이어를 배치하지 못했습니다.");
+            return;
+        }
+
+        if (_rooms == null) return;
+
+        DungeonRoom startRoom = _rooms[StartCell.x, StartCell.y];
+        if (startRoom == null)
+        {
+            Debug.LogWarning("DungeonGenerator2D: 시작방이 생성되지 않아 플레이어를 배치하지 못했습니다. Start Room Prefab을 확인하세요.");
+            return;
+        }
+
+        _player.EnterRoom(startRoom.Grid, startRoom.Grid.Center);
+    }
+
+    /// <summary>그리드 좌표의 방을 반환 (없으면 null)</summary>
+    public DungeonRoom GetRoom(Vector2Int cell)
+    {
+        if (_rooms == null || !InBounds(cell)) return null;
+        return _rooms[cell.x, cell.y];
     }
 
     private DungeonRoom GetPrefab(Vector2Int cell)
