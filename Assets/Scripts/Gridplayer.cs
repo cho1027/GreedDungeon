@@ -19,6 +19,13 @@ public class GridPlayer : MonoBehaviour
     [SerializeField] private bool _fitCamera = true;
     [Tooltip("방 가장자리 바깥으로 보여줄 여백 (타일 칸 수)")]
     [SerializeField] private float _cameraPadding = 0.5f;
+
+    [Header("카메라 플레이 영역 여백 (화면 비율 0~1)")]
+    [Tooltip("UI가 차지하는 영역을 비워두는 값. 방은 남은 영역 안에 맞춰서 보인다")]
+    [Range(0f, 0.8f)][SerializeField] private float _marginLeft = 0f;
+    [Range(0f, 0.8f)][SerializeField] private float _marginRight = 0f;
+    [Range(0f, 0.8f)][SerializeField] private float _marginTop = 0f;
+    [Range(0f, 0.8f)][SerializeField] private float _marginBottom = 0.3f;
     [Tooltip("스프라이트 크기를 타일 1칸에 맞춰 자동으로 스케일")]
     [SerializeField] private bool _fitToCell = true;
     [Range(0.3f, 1f)]
@@ -27,15 +34,19 @@ public class GridPlayer : MonoBehaviour
     public RoomGrid CurrentRoom { get; private set; }
     public Vector2Int Cell { get; private set; }
     public bool IsMoving { get; private set; }
+    public Camera Camera => _camera;
 
-    /// <summary>한 칸 이동을 시작할 때 (이동 후 좌표)</summary>
+    /// <summary>true 면 키 입력을 받지 않는다 (방 이동 연출, 전투 시작 연출 등)</summary>
+    public bool InputLocked { get; set; }
+
+    /// <summary>한 칸 이동을 마쳤을 때 (이동 후 좌표)</summary>
     public event Action<Vector2Int> Moved;
 
-    /// <summary>열린 문 타일에 도착했을 때</summary>
+    /// <summary>열린 문 칸에 도착했을 때</summary>
     public event Action<DoorDirection> DoorEntered;
 
     /// <summary>방에 배치 (생성 직후나 방 이동 시 호출)</summary>
-    public void EnterRoom(RoomGrid room, Vector2Int cell)
+    public void EnterRoom(RoomGrid room, Vector2Int cell, bool snapCamera = true)
     {
         StopAllCoroutines();
         IsMoving = false;
@@ -43,45 +54,73 @@ public class GridPlayer : MonoBehaviour
         CurrentRoom = room;
         Cell = cell;
 
-        if (_fitToCell) FitToCell(room);
+        if (_fitToCell) room.FitToCell(transform, _cellFill);
 
         Vector3 p = room.GridToWorld(cell);
         transform.position = new Vector3(p.x, p.y, transform.position.z);
 
-        if (_camera != null)
-        {
-            Vector3 c = room.WorldCenter;
-            _camera.transform.position = new Vector3(c.x, c.y, _camera.transform.position.z);
-
-            if (_fitCamera && _camera.orthographic)
-            {
-                Vector2 size = room.WorldSize;
-                float pad = _cameraPadding * room.WorldCellSize;
-                float byHeight = size.y * 0.5f + pad;
-                float byWidth = (size.x * 0.5f + pad) / _camera.aspect;
-                _camera.orthographicSize = Mathf.Max(byHeight, byWidth);
-            }
-        }
+        if (snapCamera) SnapCameraTo(room);
     }
 
-    // 스프라이트가 타일 1칸 안에 들어오도록 스케일 조정
-    private void FitToCell(RoomGrid room)
+    /// <summary>카메라를 그 방 중심으로 즉시 옮긴다</summary>
+    public void SnapCameraTo(RoomGrid room)
     {
-        SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
-        if (sr == null || sr.sprite == null) return;
+        if (_camera == null) return;
 
-        transform.localScale = Vector3.one;
-        Vector3 size = sr.bounds.size;
-        float biggest = Mathf.Max(size.x, size.y);
-        if (biggest <= 0f) return;
+        GetCameraTarget(room, out Vector3 pos, out float size);
+        _camera.transform.position = pos;
 
-        float scale = room.WorldCellSize * _cellFill / biggest;
-        transform.localScale = Vector3.one * scale;
+        if (_camera.orthographic)
+            _camera.orthographicSize = size;
+    }
+
+    /// <summary>그 방 전체가 화면에 들어오는 카메라 Size</summary>
+    public float GetCameraSize(RoomGrid room)
+    {
+        GetCameraTarget(room, out _, out float size);
+        return size;
+    }
+
+    /// <summary>
+    /// 그 방을 보여줄 카메라의 위치와 Size.
+    /// 방은 화면에서 여백(UI 영역)을 뺀 "플레이 영역" 안에 들어오고 그 영역의 중앙에 놓인다.
+    /// </summary>
+    public void GetCameraTarget(RoomGrid room, out Vector3 position, out float size)
+    {
+        Vector3 center = room.WorldCenter;
+        position = new Vector3(center.x, center.y, _camera != null ? _camera.transform.position.z : 0f);
+        size = _camera != null ? _camera.orthographicSize : 0f;
+
+        if (_camera == null || !_fitCamera || !_camera.orthographic) return;
+
+        float l = _marginLeft, r = _marginRight, t = _marginTop, b = _marginBottom;
+        float areaW = Mathf.Max(0.1f, 1f - l - r);   // 플레이 영역 가로 (화면 비율)
+        float areaH = Mathf.Max(0.1f, 1f - t - b);   // 플레이 영역 세로 (화면 비율)
+
+        // 방(벽 포함) + 여백이 플레이 영역 안에 딱 들어오는 Size
+        Vector2 roomSize = room.WorldSize;
+        float pad = _cameraPadding * room.WorldCellSize;
+        float needW = roomSize.x + pad * 2f;
+        float needH = roomSize.y + pad * 2f;
+        size = Mathf.Max(needH / (2f * areaH), needW / (2f * _camera.aspect * areaW));
+
+        // 플레이 영역의 중앙이 방 중심에 오도록 카메라를 이동
+        float areaCenterX = (1f + l - r) * 0.5f;
+        float areaCenterY = (1f + b - t) * 0.5f;
+        position.x = center.x - (areaCenterX - 0.5f) * 2f * size * _camera.aspect;
+        position.y = center.y - (areaCenterY - 0.5f) * 2f * size;
+    }
+
+    /// <summary>플레이어 스프라이트 표시/숨김 (방 이동 연출용)</summary>
+    public void SetVisible(bool visible)
+    {
+        foreach (SpriteRenderer sr in GetComponentsInChildren<SpriteRenderer>(true))
+            sr.enabled = visible;
     }
 
     private void Update()
     {
-        if (CurrentRoom == null || IsMoving) return;
+        if (CurrentRoom == null || IsMoving || InputLocked) return;
 
         Vector2Int dir = ReadInput();
         if (dir != Vector2Int.zero)

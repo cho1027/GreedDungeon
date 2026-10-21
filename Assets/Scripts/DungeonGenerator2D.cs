@@ -42,6 +42,10 @@ public class DungeonGenerator2D : MonoBehaviour
     [SerializeField] private Vector2 _roomGapCells = new Vector2(10f, 8f);
     [SerializeField] private Vector2 _roomSpacing = new Vector2(20f, 12f); // 수동 간격 (자동 간격이 꺼져 있을 때)
 
+    [Header("디버그")]
+    [Tooltip("씬 뷰에 맵이 생성될 수 있는 범위를 선으로 표시")]
+    [SerializeField] private bool _drawBounds = true;
+
     [Header("프리팹")]
     [SerializeField] private DungeonRoom _startRoomPrefab;
     [SerializeField] private DungeonRoom _bossRoomPrefab;
@@ -58,6 +62,9 @@ public class DungeonGenerator2D : MonoBehaviour
     {
         Vector2Int.up, Vector2Int.down, Vector2Int.right, Vector2Int.left
     };
+
+    /// <summary>던전 생성과 플레이어 배치가 끝났을 때 (인자: 시작방)</summary>
+    public event Action<DungeonRoom> Generated;
 
     private bool[,] _map;
     private int[,] _distance;                       // 시작점으로부터의 거리
@@ -90,6 +97,39 @@ public class DungeonGenerator2D : MonoBehaviour
     private void Start()
     {
         Generate();
+    }
+
+    // 맵이 생성될 수 있는 범위(Grid X x Grid Y)를 씬 뷰에 표시
+    private void OnDrawGizmos()
+    {
+        if (!_drawBounds) return;
+
+        Vector2 sp = GetSpacing();
+        Gizmos.matrix = transform.localToWorldMatrix;
+
+        // 칸마다 방이 들어갈 자리 (옅은 청록)
+        Gizmos.color = new Color(0f, 1f, 1f, 0.25f);
+        for (int x = 0; x < _gridX; x++)
+        {
+            for (int y = 0; y < _gridY; y++)
+            {
+                Gizmos.DrawWireCube(new Vector3(x * sp.x, y * sp.y, 0f), new Vector3(sp.x, sp.y, 0f));
+            }
+        }
+
+        // 시작방 자리 (노랑)
+        Vector2Int s = StartCell;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(new Vector3(s.x * sp.x, s.y * sp.y, 0f), new Vector3(sp.x, sp.y, 0f));
+
+        // 전체 생성 범위 (초록, 굵게 보이도록 살짝 겹쳐 그림)
+        Gizmos.color = Color.green;
+        Vector3 center = new Vector3((_gridX - 1) * sp.x * 0.5f, (_gridY - 1) * sp.y * 0.5f, 0f);
+        Vector3 size = new Vector3(_gridX * sp.x, _gridY * sp.y, 0f);
+        Gizmos.DrawWireCube(center, size);
+        Gizmos.DrawWireCube(center, size + new Vector3(0.1f, 0.1f, 0f));
+
+        Gizmos.matrix = Matrix4x4.identity;
     }
 
     private void Update()
@@ -292,6 +332,7 @@ public class DungeonGenerator2D : MonoBehaviour
             room.name = $"{prefab.name} ({cell.x}, {cell.y})";
 
             _rooms[cell.x, cell.y] = room;
+            room.SetMapCell(cell);
             _spawned.Add(room.gameObject);
         }
 
@@ -343,6 +384,7 @@ public class DungeonGenerator2D : MonoBehaviour
         }
 
         _player.EnterRoom(startRoom.Grid, startRoom.Grid.Center);
+        Generated?.Invoke(startRoom);
     }
 
     /// <summary>그리드 좌표의 방을 반환 (없으면 null)</summary>
@@ -350,6 +392,23 @@ public class DungeonGenerator2D : MonoBehaviour
     {
         if (_rooms == null || !InBounds(cell)) return null;
         return _rooms[cell.x, cell.y];
+    }
+
+    /// <summary>문 방향으로 이어진 옆 방 (없으면 null). 북=+y, 남=-y, 동=+x, 서=-x</summary>
+    public DungeonRoom GetNeighbor(DungeonRoom room, DoorDirection dir)
+    {
+        if (room == null) return null;
+
+        Vector2Int offset;
+        switch (dir)
+        {
+            case DoorDirection.North: offset = Vector2Int.up; break;
+            case DoorDirection.South: offset = Vector2Int.down; break;
+            case DoorDirection.East: offset = Vector2Int.right; break;
+            default: offset = Vector2Int.left; break;
+        }
+
+        return GetRoom(room.MapCell + offset);
     }
 
     private DungeonRoom GetPrefab(Vector2Int cell)

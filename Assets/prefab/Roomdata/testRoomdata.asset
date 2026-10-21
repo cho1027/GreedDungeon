@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4ce7e03ad775e64687e82441e1fe264, type: 3}
+  m_Name: testRoomdata
+  m_EditorClassIdentifier: Assembly-CSharp::RoomData
+  _roomType: 0
+  _clearedOnEnter: 1
+  _spawns:
+  - kind: 2
+    prefab: {fileID: 4046876493045391944, guid: e61ff9a50c17a994e853732cbe10b218, type: 3}
+    cell: {x: 0, y: 0}
+    blocksMovement: 1
+    fitToCell: 0
+    fillRatio: 0.907
+  _enterTriggers: []
+  _exitTriggers: []

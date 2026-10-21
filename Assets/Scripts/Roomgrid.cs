@@ -40,6 +40,9 @@ public class RoomGrid : MonoBehaviour
     public float CellSize => _cellSize;
     public Vector2Int Center => new Vector2Int(_width / 2, _height / 2);
 
+    /// <summary>true 면 열려 있는 문도 지나갈 수 없다 (전투 중 문 잠금 등)</summary>
+    public bool DoorsLocked { get; set; }
+
     /// <summary>그리드 중심의 월드 좌표 (카메라 맞출 때 사용)</summary>
     public Vector3 WorldCenter => transform.TransformPoint(_centerOffset);
 
@@ -160,7 +163,7 @@ public class RoomGrid : MonoBehaviour
     {
         // 문 칸: 열려 있을 때만 통과
         if (TryGetDoorAt(cell, out DoorDirection dir))
-            return _doorOpen[(int)dir];
+            return _doorOpen[(int)dir] && !DoorsLocked;
 
         // 그 외 바닥 바깥은 전부 벽
         if (!InBounds(cell)) return false;
@@ -178,6 +181,20 @@ public class RoomGrid : MonoBehaviour
     public void ClearBlocked()
     {
         _blocked.Clear();
+    }
+
+    /// <summary>스프라이트가 타일 1칸 안에 들어오도록 Transform 스케일을 맞춘다</summary>
+    public void FitToCell(Transform target, float fill)
+    {
+        SpriteRenderer sr = target.GetComponentInChildren<SpriteRenderer>();
+        if (sr == null || sr.sprite == null) return;
+
+        target.localScale = Vector3.one;
+        Vector3 size = Vector3.Scale(sr.sprite.bounds.size, sr.transform.lossyScale);
+        float biggest = Mathf.Max(size.x, size.y);
+        if (biggest <= 0f) return;
+
+        target.localScale = Vector3.one * (WorldCellSize * fill / biggest);
     }
 
     // ───────────────────────── 에디터 기즈모 ─────────────────────────
