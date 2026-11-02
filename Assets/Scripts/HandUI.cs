@@ -6,29 +6,29 @@ using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// ¼ÕÆĞ UI. Ä«µå¸¦ Ãß°¡ÇÏ°í, ºÎÃ¤²Ã·Î Á¤·ÄÇÏ°í, ÆĞ ¹ÛÀ¸·Î ³»·Á³õÀº Ä«µå¸¦ "»ç¿ë" Ã³¸®ÇÑ´Ù.
-/// ÀÌ ÄÄÆ÷³ÍÆ®´Â È­¸é ¾Æ·¡ÂÊ "ÆĞ ¿µ¿ª" ¿ÀºêÁ§Æ®(RectTransform, ÇÇ¹ş Áß¾Ó)¿¡ ºÙÀÎ´Ù.
-/// Ä«µå´Â ÀÌ ¿ÀºêÁ§Æ®ÀÇ ÀÚ½ÄÀ¸·Î »ı¼ºµÈ´Ù.
+/// ì†íŒ¨ UI. ì¹´ë“œë¥¼ ì¶”ê°€í•˜ê³ , ë¶€ì±„ê¼´ë¡œ ì •ë ¬í•˜ê³ , ì† ì˜ì—­ ë°–ìœ¼ë¡œ ëŒì–´ë‚¸ ì¹´ë“œë¥¼ "ì‚¬ìš©" ì²˜ë¦¬í•œë‹¤.
+/// ì´ ì»´í¬ë„ŒíŠ¸ëŠ” í™”ë©´ ì•„ë˜ì˜ "ì† ì˜ì—­" ì˜¤ë¸Œì íŠ¸(RectTransform, í”¼ë²— ì¤‘ì•™)ì— ë¶™ì¸ë‹¤.
+/// ì¹´ë“œëŠ” ì´ ì˜¤ë¸Œì íŠ¸ì˜ ìì‹ìœ¼ë¡œ ìƒì„±ëœë‹¤.
 /// </summary>
 public class HandUI : MonoBehaviour
 {
     [SerializeField] private CardView _cardPrefab;
 
-    [Tooltip("ÀÌ ¿µ¿ª ¾È¿¡ Ä«µå¸¦ ³õÀ¸¸é ÆĞ·Î µ¹¾Æ°¡°í, ¹Û¿¡ ³õÀ¸¸é »ç¿ëµÈ´Ù. ºñ¿öµÎ¸é ÀÌ ¿ÀºêÁ§Æ®ÀÇ ¿µ¿ª")]
+    [Tooltip("ì´ ì˜ì—­ ì•ˆì— ì¹´ë“œë¥¼ ë†“ìœ¼ë©´ íŒ¨ë¡œ ëŒì•„ê°€ê³ , ë°–ì— ë†“ìœ¼ë©´ ì‚¬ìš©ëœë‹¤. ë¹„ì›Œë‘ë©´ ì´ ì˜¤ë¸Œì íŠ¸ë¥¼ ì‚¬ìš©")]
     [SerializeField] private RectTransform _handArea;
 
     [SerializeField] private int _maxCards = 10;
 
-    [Header("Á¤·Ä")]
-    [SerializeField] private float _cardSpacing = 140f;   // Ä«µå »çÀÌ °£°İ (Ä«µå°¡ ¸¹À¸¸é ÀÚµ¿À¸·Î Á¼¾ÆÁü)
-    [SerializeField] private float _arcHeight = 30f;      // °¡¿îµ¥ Ä«µå°¡ ¾ç³¡º¸´Ù ³ôÀº Á¤µµ
-    [SerializeField] private float _maxFanAngle = 8f;     // ¾ç³¡ Ä«µåÀÇ ±â¿ï±â
-    [SerializeField] private float _yOffset = 0f;         // ÀüÃ¼¸¦ À§/¾Æ·¡·Î ÀÌµ¿
-    [Tooltip("»õ Ä«µå°¡ ³¯¾Æ µé¾î¿À±â ½ÃÀÛÇÏ´Â À§Ä¡ (ÆĞ ¿µ¿ª Áß½É ±âÁØ)")]
+    [Header("ì •ë ¬")]
+    [SerializeField] private float _cardSpacing = 140f;   // ì¹´ë“œ ì‚¬ì´ ê°„ê²© (ì¹´ë“œê°€ ë§ìœ¼ë©´ ìë™ìœ¼ë¡œ ì¢í˜€ì§)
+    [SerializeField] private float _arcHeight = 30f;      // ê°€ìš´ë° ì¹´ë“œê°€ ì–‘ëë³´ë‹¤ ë†’ì€ ì •ë„
+    [SerializeField] private float _maxFanAngle = 8f;     // ì–‘ë ì¹´ë“œì˜ ê¸°ìš¸ê¸°
+    [SerializeField] private float _yOffset = 0f;         // ì „ì²´ë¥¼ ìœ„/ì•„ë˜ë¡œ ì´ë™
+    [Tooltip("ìƒˆ ì¹´ë“œê°€ ë‚ ì•„ì˜¤ê¸° ì‹œì‘í•˜ëŠ” ìœ„ì¹˜ (ì† ì˜ì—­ ì¤‘ì‹¬ ê¸°ì¤€)")]
     [SerializeField] private Vector2 _spawnOffset = new Vector2(700f, -150f);
 
-    [Header("Å×½ºÆ®")]
-    [SerializeField] private bool _debugKeyEnabled = true; // C Å°·Î Ä«µå Ãß°¡
+    [Header("í…ŒìŠ¤íŠ¸")]
+    [SerializeField] private bool _debugKeyEnabled = true; // C í‚¤ë¡œ ì¹´ë“œ ì¶”ê°€
     [SerializeField] private List<CardData> _testCards = new List<CardData>();
 
     private readonly List<CardView> _cards = new List<CardView>();
@@ -36,15 +36,21 @@ public class HandUI : MonoBehaviour
 
     public int Count => _cards.Count;
 
-    /// <summary>Ä«µå°¡ ÆĞ¿¡ Ãß°¡µÆÀ» ¶§</summary>
+    /// <summary>ì¹´ë“œê°€ íŒ¨ì— ì¶”ê°€ëì„ ë•Œ</summary>
     public event Action<CardData> CardAdded;
 
-    /// <summary>Ä«µå°¡ »ç¿ëµÆÀ» ¶§ (°¡Àå Ä¿Áø ¼ø°£). ³ªÁß¿¡ Ä«µå È¿°ú¸¦ ¿©±â¼­ Ã³¸®ÇÏ¸é µÈ´Ù</summary>
+    /// <summary>
+    /// ì¹´ë“œ ì‚¬ìš©ì´ í™•ì •ëœ ìˆœê°„ (ì‚¬ìš© ì—°ì¶œ ì‹œì‘ ì§ì „, ê°™ì€ í”„ë ˆì„).
+    /// ì½”ìŠ¤íŠ¸ ì°¨ê°ì²˜ëŸ¼ ì¦‰ì‹œ ë°˜ì˜í•´ì•¼ í•˜ëŠ” ì²˜ë¦¬ëŠ” ì—¬ê¸°ì„œ í•œë‹¤.
+    /// </summary>
+    public event Action<CardData> CardUseStarted;
+
+    /// <summary>ì¹´ë“œê°€ ì‚¬ìš©ëì„ ë•Œ (ì‚´ì§ ì»¤ì§„ ì§í›„). ë‚˜ì¤‘ì— ì¹´ë“œ íš¨ê³¼ëŠ” ì—¬ê¸°ì„œ ì²˜ë¦¬í•˜ë©´ ëœë‹¤</summary>
     public event Action<CardData> CardUsed;
 
     /// <summary>
-    /// Ä«µå »ç¿ë Á¶°Ç (Çàµ¿·Â ºÎÁ· µî). null ÀÌ¸é Ç×»ó »ç¿ë °¡´É.
-    /// false ¸¦ ¹İÈ¯ÇÏ¸é Ä«µå´Â »ç¿ëµÇÁö ¾Ê°í ÆĞ·Î µ¹¾Æ°£´Ù.
+    /// ì¹´ë“œ ì‚¬ìš© ê°€ëŠ¥ ì—¬ë¶€ (ì½”ìŠ¤íŠ¸, í„´ í™•ì¸ ë“±). null ì´ë©´ í•­ìƒ ì‚¬ìš© ê°€ëŠ¥.
+    /// false ë¥¼ ë°˜í™˜í•˜ë©´ ì¹´ë“œëŠ” ì‚¬ìš©ë˜ì§€ ì•Šê³  íŒ¨ë¡œ ëŒì•„ê°„ë‹¤.
     /// </summary>
     public Func<CardData, bool> CanUseCard;
 
@@ -67,9 +73,9 @@ public class HandUI : MonoBehaviour
 #endif
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ Ãß°¡ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ì¶”ê°€ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    /// <summary>Å×½ºÆ® Ä«µå ¸ñ·Ï¿¡¼­ ÇÑ Àå Ãß°¡ (UI ¹öÆ° OnClick ¿¡ ¿¬°áÇØµµ µÊ)</summary>
+    /// <summary>í…ŒìŠ¤íŠ¸ ì¹´ë“œ ëª©ë¡ì—ì„œ í•œ ì¥ ì¶”ê°€ (UI ë²„íŠ¼ OnClick ì— ì—°ê²°í•´ë„ ë¨)</summary>
     [ContextMenu("Add Test Card")]
     public void AddRandomCard()
     {
@@ -80,12 +86,12 @@ public class HandUI : MonoBehaviour
         AddCard(data);
     }
 
-    /// <summary>Ä«µå ÇÑ ÀåÀ» ÆĞ¿¡ Ãß°¡ÇÑ´Ù. data °¡ null ÀÌ¾îµµ ºó Ä«µå·Î Ãß°¡µÈ´Ù</summary>
+    /// <summary>ì¹´ë“œ í•œ ì¥ì„ íŒ¨ì— ì¶”ê°€í•œë‹¤. data ê°€ null ì´ì–´ë„ ë¹ˆ ì¹´ë“œë¡œ ì¶”ê°€ëœë‹¤</summary>
     public CardView AddCard(CardData data)
     {
         if (_cardPrefab == null)
         {
-            Debug.LogWarning("HandUI: Card Prefab ÀÌ ÁöÁ¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.", this);
+            Debug.LogWarning("HandUI: Card Prefab ì´ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.", this);
             return null;
         }
 
@@ -100,13 +106,13 @@ public class HandUI : MonoBehaviour
         return card;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ µå·Ó Ã³¸® (CardView °¡ È£Ãâ) ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ë“œë¡­ ì²˜ë¦¬ (CardView ê°€ í˜¸ì¶œ) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public void OnCardDropped(CardView card, Vector2 screenPos, Camera eventCamera)
     {
         bool insideHand = RectTransformUtility.RectangleContainsScreenPoint(_handArea, screenPos, eventCamera);
 
-        // ÆĞ ¾È¿¡ ³õ¾Ò°Å³ª »ç¿ë Á¶°ÇÀÌ ¾È µÇ¸é Á¦ÀÚ¸®·Î
+        // ì† ì•ˆì— ë†“ì•˜ê±°ë‚˜ ì‚¬ìš© ì¡°ê±´ì´ ì•ˆ ë˜ë©´ ì œìë¦¬ë¡œ
         if (insideHand || (CanUseCard != null && !CanUseCard(card.Data)))
         {
             Relayout();
@@ -119,13 +125,17 @@ public class HandUI : MonoBehaviour
     private void UseCard(CardView card)
     {
         _cards.Remove(card);
-        Relayout(); // ³²Àº Ä«µåµéÀÌ ºóÀÚ¸®¸¦ ¸Ş¿î´Ù
+        Relayout(); // ë‚¨ì€ ì¹´ë“œë“¤ì´ ë¹ˆìë¦¬ë¥¼ ë©”ìš´ë‹¤
 
         CardData data = card.Data;
+
+        // ì‚¬ìš© í™•ì •: ì½”ìŠ¤íŠ¸ ì°¨ê° ë“±ì€ ì—°ì¶œì„ ê¸°ë‹¤ë¦¬ì§€ ì•Šê³  ì¦‰ì‹œ ì²˜ë¦¬
+        CardUseStarted?.Invoke(data);
+
         card.PlayUse(() => CardUsed?.Invoke(data));
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ Á¤·Ä ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ì •ë ¬ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void Relayout()
     {
@@ -138,7 +148,7 @@ public class HandUI : MonoBehaviour
 
         for (int i = 0; i < n; i++)
         {
-            float t = n > 1 ? (i / (float)(n - 1)) * 2f - 1f : 0f; // -1(¿ŞÂÊ ³¡) ~ 1(¿À¸¥ÂÊ ³¡)
+            float t = n > 1 ? (i / (float)(n - 1)) * 2f - 1f : 0f; // -1(ì™¼ìª½ ë) ~ 1(ì˜¤ë¥¸ìª½ ë)
 
             float x = (i - (n - 1) * 0.5f) * spacing;
             float y = _yOffset + _arcHeight * (1f - t * t);
@@ -148,14 +158,14 @@ public class HandUI : MonoBehaviour
             _cards[i].transform.SetSiblingIndex(i);
         }
 
-        // µå·¡±× ÁßÀÎ Ä«µå´Â Ç×»ó ¸Ç À§
+        // ë“œë˜ê·¸ ì¤‘ì¸ ì¹´ë“œëŠ” í•­ìƒ ë§¨ ìœ„
         for (int i = 0; i < n; i++)
         {
             if (_cards[i].IsDragging) _cards[i].transform.SetAsLastSibling();
         }
     }
 
-    /// <summary>ÆĞ¸¦ ÀüºÎ ºñ¿î´Ù (»ç¿ë È¿°ú ¾øÀÌ Á¦°Å)</summary>
+    /// <summary>íŒ¨ë¥¼ ì „ë¶€ ë¹„ìš´ë‹¤ (ì‚¬ìš© íš¨ê³¼ ì—†ì´ ì œê±°)</summary>
     public void ClearHand()
     {
         foreach (CardView card in _cards)

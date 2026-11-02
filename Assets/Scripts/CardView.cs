@@ -6,29 +6,35 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// ÆĞ¿¡ ³õÀÌ´Â Ä«µå UI ÇÑ Àå.
-/// - µå·¡±×ÇØ¼­ ¿Å±æ ¼ö ÀÖ°í, ÆĞ ¿µ¿ª ¾È¿¡ ³õÀ¸¸é Á¦ÀÚ¸®·Î µ¹¾Æ°£´Ù.
-/// - ÆĞ ¿µ¿ª ¹Û¿¡ ³õÀ¸¸é "»ç¿ë": »ìÂ¦ Ä¿Á³´Ù°¡ »ç¶óÁø´Ù. (´É·ÂÀº ¾ÆÁ÷ ¾øÀ½)
-/// Ä«µå ÇÁ¸®ÆÕ Á¶°Ç: RectTransform(¾ŞÄ¿/ÇÇ¹ş Áß¾Ó) + Image(Raycast Target ÄÑÁü) + CanvasGroup + ÀÌ ÄÄÆ÷³ÍÆ®
+/// íŒ¨ì— ë³´ì´ëŠ” ì¹´ë“œ í•œ ì¥.
+/// - ë“œë˜ê·¸í•´ì„œ ì˜®ê¸¸ ìˆ˜ ìˆê³ , ì† ì˜ì—­ ì•ˆì— ë†“ìœ¼ë©´ ì œìë¦¬ë¡œ ëŒì•„ê°„ë‹¤.
+/// - ì† ì˜ì—­ ë°–ì— ë†“ìœ¼ë©´ "ì‚¬ìš©": ì‚´ì§ ì»¤ì¡Œë‹¤ê°€ ì‚¬ë¼ì§„ë‹¤ (íš¨ê³¼ëŠ” CardEffectRunner ê°€ ì‹¤í–‰).
+/// - ë§ˆìš°ìŠ¤ë¥¼ ì˜¬ë¦¬ë©´ ì‚´ì§ ì»¤ì§€ë©° ìœ„ë¡œ ì˜¬ë¼ì˜¨ë‹¤.
+/// ì¹´ë“œ í”„ë¦¬íŒ¹ êµ¬ì„±: RectTransform(ì•µì»¤/í”¼ë²— ì¤‘ì•™) + Image(Raycast Target ì¼œê¸°) + CanvasGroup + ì´ ì»´í¬ë„ŒíŠ¸
 /// </summary>
 [RequireComponent(typeof(CanvasGroup))]
-public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler,
+                        IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("Ç¥½Ã (¿¬°á ¾È ÇØµµ µ¿ÀÛÇÔ)")]
+    [Header("í‘œì‹œ (ì—°ê²° ì•ˆ í•´ë„ ë™ì‘í•¨)")]
     [SerializeField] private Image _artImage;
     [SerializeField] private TMP_Text _nameText;
     [SerializeField] private TMP_Text _costText;
     [SerializeField] private TMP_Text _descriptionText;
 
-    [Header("ÆĞ ¾È¿¡¼­ÀÇ ÀÌµ¿")]
-    [Tooltip("¸ñÇ¥ À§Ä¡·Î µû¶ó°¡´Â ¼Óµµ (Å¬¼ö·Ï ºü¸§)")]
+    [Header("ì† ì•ˆì—ì„œì˜ ì´ë™")]
+    [Tooltip("ëª©í‘œ ìœ„ì¹˜ë¥¼ ë”°ë¼ê°€ëŠ” ì†ë„ (í´ìˆ˜ë¡ ë¹ ë¦„)")]
     [SerializeField] private float _followSpeed = 14f;
 
-    [Header("»ç¿ë ¿¬Ãâ")]
-    [SerializeField] private float _useScale = 1.25f;    // Ä¿Áö´Â ¹èÀ²
-    [SerializeField] private float _scaleUpTime = 0.12f; // Ä¿Áö´Â ½Ã°£
-    [SerializeField] private float _holdTime = 0.05f;    // Ä¿Áø »óÅÂ·Î Àá±ñ À¯Áö
-    [SerializeField] private float _fadeTime = 0.15f;    // »ç¶óÁö´Â ½Ã°£
+    [Header("ë§ˆìš°ìŠ¤ ì˜¬ë ¸ì„ ë•Œ")]
+    [SerializeField] private float _hoverScale = 1.12f;
+    [SerializeField] private float _hoverLift = 40f;
+
+    [Header("ì‚¬ìš© ì—°ì¶œ")]
+    [SerializeField] private float _useScale = 1.25f;    // ì»¤ì§€ëŠ” ì •ë„
+    [SerializeField] private float _scaleUpTime = 0.12f; // ì»¤ì§€ëŠ” ì‹œê°„
+    [SerializeField] private float _holdTime = 0.05f;    // ì»¤ì§„ ìƒíƒœë¡œ ì ê¹ ìœ ì§€
+    [SerializeField] private float _fadeTime = 0.15f;    // ì‚¬ë¼ì§€ëŠ” ì‹œê°„
 
     private HandUI _hand;
     private RectTransform _rect;
@@ -38,6 +44,7 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     private Vector2 _targetPos;
     private float _targetRot;
     private bool _used;
+    private bool _hovered;
 
     public CardData Data { get; private set; }
     public bool IsDragging { get; private set; }
@@ -57,16 +64,22 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         _rect.localPosition = new Vector3(startLocalPos.x, startLocalPos.y, 0f);
         _targetPos = startLocalPos;
 
-        if (data != null)
+        if (data == null) return;
+
+        if (_artImage != null && data.Artwork != null)
         {
-            if (_artImage != null && data.Artwork != null) _artImage.sprite = data.Artwork;
-            if (_nameText != null) _nameText.text = data.CardName;
-            if (_costText != null) _costText.text = data.Cost.ToString();
-            if (_descriptionText != null) _descriptionText.text = data.Description;
+            // ì´ë¯¸ì§€ê°€ ìˆìœ¼ë©´ ì›ë˜ ìƒ‰ìœ¼ë¡œ í‘œì‹œ (ì—†ìœ¼ë©´ í”„ë¦¬íŒ¹ì˜ ë¹ˆ ì¹¸ ìƒ‰ ê·¸ëŒ€ë¡œ)
+            _artImage.sprite = data.Artwork;
+            _artImage.color = Color.white;
+            _artImage.preserveAspect = true;
         }
+
+        if (_nameText != null) _nameText.text = data.CardName;
+        if (_costText != null) _costText.text = data.Cost.ToString();
+        if (_descriptionText != null) _descriptionText.text = data.Description;
     }
 
-    /// <summary>ÆĞ Á¤·ÄÀÌ Á¤ÇØÁØ ¸ñÇ¥ À§Ä¡/±â¿ï±â (ºÎ¸ğ ±âÁØ ·ÎÄÃ ÁÂÇ¥)</summary>
+    /// <summary>ì† ì •ë ¬ì´ ì •í•´ì¤€ ëª©í‘œ ìœ„ì¹˜/ê°ë„ (ë¶€ëª¨ ê¸°ì¤€ ë¡œì»¬ ì¢Œí‘œ)</summary>
     public void SetTarget(Vector2 localPos, float rotationZ)
     {
         _targetPos = localPos;
@@ -79,14 +92,31 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
         float k = 1f - Mathf.Exp(-_followSpeed * Time.deltaTime);
 
-        Vector3 target = new Vector3(_targetPos.x, _targetPos.y, 0f);
-        _rect.localPosition = Vector3.Lerp(_rect.localPosition, target, k);
+        Vector2 pos = _targetPos + (_hovered ? new Vector2(0f, _hoverLift) : Vector2.zero);
+        _rect.localPosition = Vector3.Lerp(_rect.localPosition, new Vector3(pos.x, pos.y, 0f), k);
 
-        float z = Mathf.LerpAngle(_rect.localEulerAngles.z, _targetRot, k);
+        float targetRot = _hovered ? 0f : _targetRot;
+        float z = Mathf.LerpAngle(_rect.localEulerAngles.z, targetRot, k);
         _rect.localRotation = Quaternion.Euler(0f, 0f, z);
+
+        float s = _hovered ? _hoverScale : 1f;
+        _rect.localScale = Vector3.Lerp(_rect.localScale, new Vector3(s, s, 1f), k);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ µå·¡±× ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ë§ˆìš°ìŠ¤ ì˜¬ë¦¬ê¸° â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (_used) return;
+        _hovered = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _hovered = false;
+    }
+
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ë“œë˜ê·¸ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -95,7 +125,7 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         IsDragging = true;
         _group.blocksRaycasts = false;
         _rect.localRotation = Quaternion.identity;
-        _rect.SetAsLastSibling(); // ´Ù¸¥ Ä«µå À§¿¡ ±×·ÁÁöµµ·Ï
+        _rect.SetAsLastSibling(); // ë‹¤ë¥¸ ì¹´ë“œ ìœ„ì— ê·¸ë ¤ì§€ë„ë¡
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -114,21 +144,23 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         if (!IsDragging) return;
 
         IsDragging = false;
+        _hovered = false;
         _group.blocksRaycasts = true;
         _hand.OnCardDropped(this, eventData.position, eventData.pressEventCamera);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ »ç¿ë ¿¬Ãâ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ì‚¬ìš© ì—°ì¶œ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
-    /// »ìÂ¦ Ä¿Á³´Ù°¡ »ç¶óÁø´Ù. °¡Àå Ä¿Áø ¼ø°£ onUsed °¡ È£ÃâµÈ´Ù (³ªÁß¿¡ Ä«µå È¿°ú¸¦ ¹ßµ¿ÇÒ ÁöÁ¡).
-    /// ¿¬ÃâÀÌ ³¡³ª¸é ¿ÀºêÁ§Æ®°¡ Á¦°ÅµÈ´Ù.
+    /// ì‚´ì§ ì»¤ì¡Œë‹¤ê°€ ì‚¬ë¼ì§„ë‹¤. ê°€ì¥ ì»¤ì§„ ìˆœê°„ onUsed ê°€ í˜¸ì¶œëœë‹¤ (ì¹´ë“œ íš¨ê³¼ ë°œë™ ì‹œì ).
+    /// ì—°ì¶œì´ ëë‚˜ë©´ ì˜¤ë¸Œì íŠ¸ê°€ ì‚­ì œëœë‹¤.
     /// </summary>
     public void PlayUse(Action onUsed)
     {
         if (_used) return;
 
         _used = true;
+        _hovered = false;
         _group.blocksRaycasts = false;
         _group.interactable = false;
         _rect.SetAsLastSibling();
@@ -139,9 +171,9 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     private IEnumerator UseRoutine(Action onUsed)
     {
         Vector3 startScale = _rect.localScale;
-        Vector3 peakScale = startScale * _useScale;
+        Vector3 peakScale = Vector3.one * _useScale;
 
-        // 1) »ìÂ¦ Ä¿Áø´Ù
+        // 1) ì‚´ì§ ì»¤ì§€ê¸°
         float t = 0f;
         while (t < _scaleUpTime)
         {
@@ -153,13 +185,13 @@ public class CardView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         }
         _rect.localScale = peakScale;
 
-        // 2) »ç¿ë (È¿°ú ¹ßµ¿ ÁöÁ¡)
+        // 2) ì‚¬ìš© (íš¨ê³¼ ë°œë™ ì‹œì )
         onUsed?.Invoke();
 
         if (_holdTime > 0f)
             yield return new WaitForSeconds(_holdTime);
 
-        // 3) »ç¶óÁø´Ù
+        // 3) ì‚¬ë¼ì§€ê¸°
         t = 0f;
         while (t < _fadeTime)
         {

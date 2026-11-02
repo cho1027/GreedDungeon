@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ed408cb9a3ebd444a4a8018e1b2cb8c, type: 3}
+  m_Name: SequenceActionSelector_Test
+  m_EditorClassIdentifier: Assembly-CSharp::SequenceActionSelector
+  _sequence:
+  - {fileID: 11400000, guid: d3ddeff1514453446ab9347b936ca61e, type: 2}
+  - {fileID: 11400000, guid: 59e1937088cf1f5428a8f75018b236bf, type: 2}
+  - {fileID: 11400000, guid: c1041c7004dc910458b0d0a10ddd9315, type: 2}
+  _loop: 1

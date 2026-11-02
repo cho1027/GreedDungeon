@@ -6,46 +6,107 @@ using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// ÅÏÁ¦¿ë ±×¸®µå ÀÌµ¿ ÇÃ·¹ÀÌ¾î.
-/// WASD / ¹æÇâÅ°¸¦ ÇÑ ¹ø ´©¸¦ ¶§¸¶´Ù ÇÑ Ä­ ÀÌµ¿ÇÑ´Ù.
-/// ÀÌµ¿ °¡´É ¿©ºÎ´Â ÇöÀç ¹æÀÇ RoomGrid.IsWalkable ·Î ÆÇÁ¤ÇÑ´Ù.
+/// ê²©ì ê¸°ë°˜ ê·¸ë¦¬ë“œ ì´ë™ í”Œë ˆì´ì–´.
+/// WASD / ë°©í–¥í‚¤ë¥¼ í•œ ë²ˆ ëˆ„ë¥¼ ë•Œë§ˆë‹¤ í•œ ì¹¸ ì´ë™í•œë‹¤.
+/// ì´ë™ ê°€ëŠ¥ ì—¬ë¶€ëŠ” í˜„ì¬ ë°©ì˜ RoomGrid.IsWalkable ë¡œ íŒì •í•œë‹¤.
+/// ì§ì ‘ ì…ë ¥ìœ¼ë¡œ ì´ë™í•  ë•ŒëŠ” CanMoveByInput ìœ¼ë¡œ í—ˆìš© ì—¬ë¶€(ì½”ìŠ¤íŠ¸, í„´)ë¥¼ ë¨¼ì € ë¬»ëŠ”ë‹¤.
 /// </summary>
 public class GridPlayer : MonoBehaviour
 {
     [SerializeField] private float _moveTime = 0.1f;
-    [Tooltip("¹æ¿¡ µé¾î¿Ã ¶§ ±× ¹æ Áß½ÉÀ¸·Î Ä«¸Ş¶ó¸¦ ¿Å±ä´Ù (ºñ¿öµÎ¸é ¹«½Ã)")]
+    [Tooltip("ë°©ì— ë“¤ì–´ê°ˆ ë•Œ ì´ ë°© ì¤‘ì‹¬ìœ¼ë¡œ ì¹´ë©”ë¼ë¥¼ ì˜®ê¸´ë‹¤ (ë¹„ì›Œë‘ë©´ ë¬´ì‹œ)")]
     [SerializeField] private Camera _camera;
-    [Tooltip("¹æ Å©±â¿¡ ¸Â°Ô Ä«¸Ş¶ó Size¸¦ ÀÚµ¿ Á¶Àı (Orthographic Àü¿ë)")]
+    [Tooltip("ë°© í¬ê¸°ì— ë§ê²Œ ì¹´ë©”ë¼ Sizeë¥¼ ìë™ ì¡°ì ˆ (Orthographic ì „ìš©)")]
     [SerializeField] private bool _fitCamera = true;
-    [Tooltip("¹æ °¡ÀåÀÚ¸® ¹Ù±ùÀ¸·Î º¸¿©ÁÙ ¿©¹é (Å¸ÀÏ Ä­ ¼ö)")]
+    [Tooltip("ë°© ê°€ì¥ìë¦¬ ë°”ê¹¥ìœ¼ë¡œ ë‚¨ê¸¸ ì—¬ë°± (íƒ€ì¼ ì¹¸ ìˆ˜)")]
     [SerializeField] private float _cameraPadding = 0.5f;
 
-    [Header("Ä«¸Ş¶ó ÇÃ·¹ÀÌ ¿µ¿ª ¿©¹é (È­¸é ºñÀ² 0~1)")]
-    [Tooltip("UI°¡ Â÷ÁöÇÏ´Â ¿µ¿ªÀ» ºñ¿öµÎ´Â °ª. ¹æÀº ³²Àº ¿µ¿ª ¾È¿¡ ¸ÂÃç¼­ º¸ÀÎ´Ù")]
+    [Header("ì¹´ë©”ë¼ í”Œë ˆì´ ì˜ì—­ ì—¬ë°± (í™”ë©´ ë¹„ìœ¨ 0~1)")]
+    [Tooltip("UIê°€ ì°¨ì§€í•˜ëŠ” ìª½ì„ ë¹„ì›Œë‘ëŠ” ê°’. ë°©ì´ ë‚¨ì€ ì˜ì—­ ì•ˆì— ë§ì¶°ì„œ ë³´ì¸ë‹¤")]
     [Range(0f, 0.8f)][SerializeField] private float _marginLeft = 0f;
     [Range(0f, 0.8f)][SerializeField] private float _marginRight = 0f;
     [Range(0f, 0.8f)][SerializeField] private float _marginTop = 0f;
     [Range(0f, 0.8f)][SerializeField] private float _marginBottom = 0.3f;
-    [Tooltip("½ºÇÁ¶óÀÌÆ® Å©±â¸¦ Å¸ÀÏ 1Ä­¿¡ ¸ÂÃç ÀÚµ¿À¸·Î ½ºÄÉÀÏ")]
+    [Tooltip("ìŠ¤í”„ë¼ì´íŠ¸ í¬ê¸°ë¥¼ íƒ€ì¼ 1ì¹¸ì— ë§ì¶° ìë™ìœ¼ë¡œ ì¡°ì ˆ")]
     [SerializeField] private bool _fitToCell = true;
     [Range(0.3f, 1f)]
     [SerializeField] private float _cellFill = 0.9f;
+
+    [Header("ë°”ë¼ë³´ëŠ” ë°©í–¥ (ì¹´ë“œ ê³µê²©ì˜ 'ì „ë°©')")]
+    [SerializeField] private DoorDirection _initialFacing = DoorDirection.East;
+    [Tooltip("ì™¼ìª½ì„ ë³¼ ë•Œ ìŠ¤í”„ë¼ì´íŠ¸ ì¢Œìš° ë°˜ì „ (ì›ë³¸ ê·¸ë¦¼ì´ ì˜¤ë¥¸ìª½ì„ ë³´ê³  ìˆì„ ë•Œ ì¼œê¸°)")]
+    [SerializeField] private bool _flipWhenFacingLeft = true;
+    [Tooltip("ë°©í–¥ í‘œì‹œìš© ì˜¤ë¸Œì íŠ¸ (ì„ íƒ). ì˜¤ë¥¸ìª½(â†’)ì„ ê°€ë¦¬í‚¤ê²Œ ë§Œë“¤ì–´ ë‘ë©´ ë°”ë¼ë³´ëŠ” ë°©í–¥ìœ¼ë¡œ íšŒì „í•œë‹¤")]
+    [SerializeField] private Transform _facingIndicator;
 
     public RoomGrid CurrentRoom { get; private set; }
     public Vector2Int Cell { get; private set; }
     public bool IsMoving { get; private set; }
     public Camera Camera => _camera;
 
-    /// <summary>true ¸é Å° ÀÔ·ÂÀ» ¹ŞÁö ¾Ê´Â´Ù (¹æ ÀÌµ¿ ¿¬Ãâ, ÀüÅõ ½ÃÀÛ ¿¬Ãâ µî)</summary>
+    /// <summary>ë°”ë¼ë³´ëŠ” ë°©í–¥ (ìƒí•˜ì¢Œìš° ë‹¨ìœ„ ë²¡í„°). ë°©í–¥í‚¤ë¥¼ ëˆ„ë¥´ë©´ ì´ë™í•˜ì§€ ëª»í•´ë„ ê·¸ìª½ìœ¼ë¡œ ëˆë‹¤</summary>
+    public Vector2Int Facing { get; private set; } = Vector2Int.right;
+
+    /// <summary>ë°©í–¥ì„ ë°”ê¿¨ì„ ë•Œ</summary>
+    public event Action<Vector2Int> FacingChanged;
+
+    /// <summary>
+    /// í‚¤ ì…ë ¥ìœ¼ë¡œ ë°©í–¥ì„ ë°”ê¿€ ìˆ˜ ìˆëŠ”ì§€ (ì  í„´, ì‚¬ë§ ì‹œ ë§‰ê¸°). null ì´ë©´ í•­ìƒ í—ˆìš©.
+    /// ë°©í–¥ ì „í™˜ì€ ì½”ìŠ¤íŠ¸ë¥¼ ì“°ì§€ ì•ŠëŠ”ë‹¤.
+    /// </summary>
+    public Func<bool> CanTurnByInput;
+
+    /// <summary>true ë©´ í‚¤ ì…ë ¥ì„ ë°›ì§€ ì•ŠëŠ”ë‹¤ (ë°© ì´ë™ ì—°ì¶œ, ë°© ì…ì¥ íŠ¸ë¦¬ê±° ì§„í–‰ ì¤‘ ë“±)</summary>
     public bool InputLocked { get; set; }
 
-    /// <summary>ÇÑ Ä­ ÀÌµ¿À» ¸¶ÃÆÀ» ¶§ (ÀÌµ¿ ÈÄ ÁÂÇ¥)</summary>
+    /// <summary>
+    /// í”Œë ˆì´ì–´ê°€ í‚¤ ì…ë ¥ìœ¼ë¡œ ì§ì ‘ ì´ë™í•˜ê¸° ì „ì— í—ˆìš© ì—¬ë¶€ë¥¼ ë¬»ëŠ”ë‹¤ (ì½”ìŠ¤íŠ¸, ì  í„´ ì—¬ë¶€ ë“±).
+    /// null ì´ë©´ í•­ìƒ í—ˆìš©. false ë¥¼ ë°˜í™˜í•˜ë©´ ì´ë™í•˜ì§€ ì•ŠëŠ”ë‹¤.
+    /// ë°© ì´ë™ ì—°ì¶œì—ì„œ í˜¸ì¶œí•˜ëŠ” TryMove ì—ëŠ” ì ìš©ë˜ì§€ ì•ŠëŠ”ë‹¤.
+    /// </summary>
+    public Func<bool> CanMoveByInput;
+
+    /// <summary>
+    /// í”Œë ˆì´ì–´ê°€ í‚¤ ì…ë ¥ìœ¼ë¡œ ì§ì ‘ í•œ ì¹¸ ì´ë™ì„ ì‹œì‘í–ˆì„ ë•Œ (ì´ë™ì´ ì‹¤ì œë¡œ ì‹¤í–‰ëœ ê²½ìš°ì—ë§Œ ë°œìƒ).
+    /// ì½”ìŠ¤íŠ¸ ì°¨ê°ì€ ì—¬ê¸°ì„œ ì²˜ë¦¬í•œë‹¤.
+    /// </summary>
+    public event Action ManualMoveStarted;
+
+    /// <summary>í•œ ì¹¸ ì´ë™ì´ ëë‚¬ì„ ë•Œ (ì´ë™ í›„ ì¢Œí‘œ)</summary>
     public event Action<Vector2Int> Moved;
 
-    /// <summary>¿­¸° ¹® Ä­¿¡ µµÂøÇßÀ» ¶§</summary>
+    /// <summary>ë¬¸ ì¹¸ì— ë„ì°©í–ˆì„ ë•Œ</summary>
     public event Action<DoorDirection> DoorEntered;
 
-    /// <summary>¹æ¿¡ ¹èÄ¡ (»ı¼º Á÷ÈÄ³ª ¹æ ÀÌµ¿ ½Ã È£Ãâ)</summary>
+    private void Awake()
+    {
+        Face(AttackArea.ToVector(_initialFacing));
+    }
+
+    /// <summary>ë°”ë¼ë³´ëŠ” ë°©í–¥ì„ ë°”ê¾¼ë‹¤ (ìƒí•˜ì¢Œìš°ë§Œ)</summary>
+    public void Face(Vector2Int dir)
+    {
+        if (dir == Vector2Int.zero) return;
+
+        bool changed = Facing != dir;
+        Facing = dir;
+
+        if (_flipWhenFacingLeft && dir.x != 0)
+        {
+            foreach (SpriteRenderer sr in GetComponents<SpriteRenderer>())
+                sr.flipX = dir.x < 0;
+        }
+
+        if (_facingIndicator != null)
+        {
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            _facingIndicator.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
+
+        if (changed) FacingChanged?.Invoke(dir);
+    }
+
+    /// <summary>ë°©ì— ë°°ì¹˜ (ë˜ì „ ìƒì„±ì´ë‚˜ ë°© ì´ë™ ì‹œ í˜¸ì¶œ)</summary>
     public void EnterRoom(RoomGrid room, Vector2Int cell, bool snapCamera = true)
     {
         StopAllCoroutines();
@@ -62,7 +123,7 @@ public class GridPlayer : MonoBehaviour
         if (snapCamera) SnapCameraTo(room);
     }
 
-    /// <summary>Ä«¸Ş¶ó¸¦ ±× ¹æ Áß½ÉÀ¸·Î Áï½Ã ¿Å±ä´Ù</summary>
+    /// <summary>ì¹´ë©”ë¼ë¥¼ ì´ ë°© ì¤‘ì‹¬ìœ¼ë¡œ ì¦‰ì‹œ ì˜®ê¸´ë‹¤</summary>
     public void SnapCameraTo(RoomGrid room)
     {
         if (_camera == null) return;
@@ -74,7 +135,7 @@ public class GridPlayer : MonoBehaviour
             _camera.orthographicSize = size;
     }
 
-    /// <summary>±× ¹æ ÀüÃ¼°¡ È­¸é¿¡ µé¾î¿À´Â Ä«¸Ş¶ó Size</summary>
+    /// <summary>ì´ ë°© ì „ì²´ê°€ í™”ë©´ì— ë“¤ì–´ì˜¤ëŠ” ì¹´ë©”ë¼ Size</summary>
     public float GetCameraSize(RoomGrid room)
     {
         GetCameraTarget(room, out _, out float size);
@@ -82,8 +143,8 @@ public class GridPlayer : MonoBehaviour
     }
 
     /// <summary>
-    /// ±× ¹æÀ» º¸¿©ÁÙ Ä«¸Ş¶óÀÇ À§Ä¡¿Í Size.
-    /// ¹æÀº È­¸é¿¡¼­ ¿©¹é(UI ¿µ¿ª)À» »« "ÇÃ·¹ÀÌ ¿µ¿ª" ¾È¿¡ µé¾î¿À°í ±× ¿µ¿ªÀÇ Áß¾Ó¿¡ ³õÀÎ´Ù.
+    /// ì´ ë°©ì„ ë¹„ì¶”ëŠ” ì¹´ë©”ë¼ì˜ ìœ„ì¹˜ì™€ Size.
+    /// ì „ì²´ í™”ë©´ì—ì„œ ì—¬ë°±(UI ì˜ì—­)ì„ ëº€ "í”Œë ˆì´ ì˜ì—­" ì•ˆì— ë°©ì´ ë“¤ì–´ê°€ë„ë¡ ê°€ìš´ë°ì— ë§ì¶˜ë‹¤.
     /// </summary>
     public void GetCameraTarget(RoomGrid room, out Vector3 position, out float size)
     {
@@ -94,24 +155,24 @@ public class GridPlayer : MonoBehaviour
         if (_camera == null || !_fitCamera || !_camera.orthographic) return;
 
         float l = _marginLeft, r = _marginRight, t = _marginTop, b = _marginBottom;
-        float areaW = Mathf.Max(0.1f, 1f - l - r);   // ÇÃ·¹ÀÌ ¿µ¿ª °¡·Î (È­¸é ºñÀ²)
-        float areaH = Mathf.Max(0.1f, 1f - t - b);   // ÇÃ·¹ÀÌ ¿µ¿ª ¼¼·Î (È­¸é ºñÀ²)
+        float areaW = Mathf.Max(0.1f, 1f - l - r);   // í”Œë ˆì´ ì˜ì—­ ê°€ë¡œ (í™”ë©´ ë¹„ìœ¨)
+        float areaH = Mathf.Max(0.1f, 1f - t - b);   // í”Œë ˆì´ ì˜ì—­ ì„¸ë¡œ (í™”ë©´ ë¹„ìœ¨)
 
-        // ¹æ(º® Æ÷ÇÔ) + ¿©¹éÀÌ ÇÃ·¹ÀÌ ¿µ¿ª ¾È¿¡ µü µé¾î¿À´Â Size
+        // ë°©(ë²½ í¬í•¨) + ì—¬ë°±ì´ í”Œë ˆì´ ì˜ì—­ ì•ˆì— ë“¤ì–´ê°€ëŠ” Size
         Vector2 roomSize = room.WorldSize;
         float pad = _cameraPadding * room.WorldCellSize;
         float needW = roomSize.x + pad * 2f;
         float needH = roomSize.y + pad * 2f;
         size = Mathf.Max(needH / (2f * areaH), needW / (2f * _camera.aspect * areaW));
 
-        // ÇÃ·¹ÀÌ ¿µ¿ªÀÇ Áß¾ÓÀÌ ¹æ Áß½É¿¡ ¿Àµµ·Ï Ä«¸Ş¶ó¸¦ ÀÌµ¿
+        // í”Œë ˆì´ ì˜ì—­ì˜ ì¤‘ì•™ì´ ë°© ì¤‘ì‹¬ì— ì˜¤ë„ë¡ ì¹´ë©”ë¼ ì´ë™
         float areaCenterX = (1f + l - r) * 0.5f;
         float areaCenterY = (1f + b - t) * 0.5f;
         position.x = center.x - (areaCenterX - 0.5f) * 2f * size * _camera.aspect;
         position.y = center.y - (areaCenterY - 0.5f) * 2f * size;
     }
 
-    /// <summary>ÇÃ·¹ÀÌ¾î ½ºÇÁ¶óÀÌÆ® Ç¥½Ã/¼û±è (¹æ ÀÌµ¿ ¿¬Ãâ¿ë)</summary>
+    /// <summary>í”Œë ˆì´ì–´ ìŠ¤í”„ë¼ì´íŠ¸ í‘œì‹œ/ìˆ¨ê¹€ (ë°© ì´ë™ ì—°ì¶œìš©)</summary>
     public void SetVisible(bool visible)
     {
         foreach (SpriteRenderer sr in GetComponentsInChildren<SpriteRenderer>(true))
@@ -123,8 +184,17 @@ public class GridPlayer : MonoBehaviour
         if (CurrentRoom == null || IsMoving || InputLocked) return;
 
         Vector2Int dir = ReadInput();
-        if (dir != Vector2Int.zero)
-            TryMove(dir);
+        if (dir == Vector2Int.zero) return;
+
+        // ë°©í–¥ ì „í™˜ (ì½”ìŠ¤íŠ¸ ì—†ìŒ). ë²½Â·ëª¬ìŠ¤í„°ì— ë§‰í˜€ ì´ë™í•˜ì§€ ëª»í•´ë„ ê·¸ìª½ì„ ë°”ë¼ë³¸ë‹¤
+        if (CanTurnByInput == null || CanTurnByInput()) Face(dir);
+
+        // ì½”ìŠ¤íŠ¸ / í„´ í™•ì¸ (ë¶€ì¡±í•˜ë©´ ì´ë™ë„, ì°¨ê°ë„ í•˜ì§€ ì•ŠëŠ”ë‹¤)
+        if (CanMoveByInput != null && !CanMoveByInput()) return;
+
+        // ì‹¤ì œë¡œ ì´ë™ì´ ì‹¤í–‰ëœ ê²½ìš°ì—ë§Œ ì•Œë¦°ë‹¤ (ë²½ ë“±ìœ¼ë¡œ ë§‰íˆë©´ ì½”ìŠ¤íŠ¸ ì°¨ê° ì—†ìŒ)
+        if (TryMove(dir))
+            ManualMoveStarted?.Invoke();
     }
 
     public bool TryMove(Vector2Int dir)
@@ -135,6 +205,7 @@ public class GridPlayer : MonoBehaviour
         if (!CurrentRoom.IsWalkable(target)) return false;
 
         Cell = target;
+        Face(dir);
         StartCoroutine(MoveRoutine(CurrentRoom.GridToWorld(target)));
         return true;
     }

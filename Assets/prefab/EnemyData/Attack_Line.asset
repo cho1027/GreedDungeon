@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a826526aad0aaf7419a4e42e896aa7ae, type: 3}
+  m_Name: Attack_Line
+  m_EditorClassIdentifier: Assembly-CSharp::AttackAction
+  _displayName: "\uC9C1\uC120 \uACF5\uACA9"
+  _icon: {fileID: 8800269956952398902, guid: 342a2a809c4a8ee49bf714e4508ed4a3, type: 3}
+  _showValue: 1
+  _shape: 0
+  _damage: 5
+  _range: 3
+  _stopAtObstacles: 1
+  _faceTarget: 1
