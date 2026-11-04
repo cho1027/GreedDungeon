@@ -17,6 +17,8 @@ public class DeckEntry
 /// - 플레이어 턴 시작: 덱에서 Draw Per Turn 장 뽑아 패에 추가 (덱이 비면 버린 카드를 섞어 덱으로)
 /// - 카드 사용: 버린 카드 더미로
 /// - 턴 종료: 남은 패를 전부 버린 카드 더미로
+/// - 전투 시작: GameManager 의 덱(판 전체에서 유지되는 덱)으로 다시 만들고 섞음
+///   → 보상/상점에서 GameManager.AddCard / RemoveCard 한 결과가 다음 전투부터 반영된다
 /// - 전투 종료: 패와 버린 카드를 모두 덱으로 되돌리고 섞음
 /// 씬의 CardSystem 오브젝트에 붙어 있다.
 /// </summary>
@@ -72,6 +74,7 @@ public class DeckManager : MonoBehaviour
     {
         if (_battle != null)
         {
+            _battle.CombatStarted += OnCombatStarted;
             _battle.PlayerTurnStarted += OnPlayerTurnStarted;
             _battle.PlayerTurnEnded += OnPlayerTurnEnded;
             _battle.CombatEnded += OnCombatEnded;
@@ -92,6 +95,7 @@ public class DeckManager : MonoBehaviour
     {
         if (_battle != null)
         {
+            _battle.CombatStarted -= OnCombatStarted;
             _battle.PlayerTurnStarted -= OnPlayerTurnStarted;
             _battle.PlayerTurnEnded -= OnPlayerTurnEnded;
             _battle.CombatEnded -= OnCombatEnded;
@@ -108,19 +112,28 @@ public class DeckManager : MonoBehaviour
 
     private void BuildStartingDeck()
     {
+        // GameManager 에 덱이 없으면 여기 시작 덱을 넣어 둔다 (처음 시작할 때만)
+        GameManager.Instance.SeedDeckIfEmpty(_startingDeck);
+        RebuildFromMasterDeck();
+    }
+
+    /// <summary>패, 덱, 버린 카드를 비우고 GameManager 의 덱으로 다시 만든다</summary>
+    public void RebuildFromMasterDeck()
+    {
         _drawPile.Clear();
         _discardPile.Clear();
         _handCards.Clear();
+        if (_hand != null) _hand.ClearHand();
 
-        var cards = new List<CardData>();
-        foreach (DeckEntry entry in _startingDeck)
-        {
-            if (entry == null || entry.card == null) continue;
-            for (int i = 0; i < entry.count; i++) cards.Add(entry.card);
-        }
-
+        var cards = new List<CardData>(GameManager.Instance.Deck);
         PushShuffled(cards);
         RefreshUI();
+    }
+
+    private void OnCombatStarted(DungeonRoom room)
+    {
+        // 전투마다 판 전체 덱에서 새로 시작 (보상으로 얻은 카드 반영, 소멸된 카드 복구)
+        RebuildFromMasterDeck();
     }
 
     // ───────────────────────── 턴 / 전투 ─────────────────────────

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -32,6 +33,12 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
     [Header("연출")]
     [Tooltip("행동 하나를 실행하기 전 대기 시간 (예고 확인용)")]
     [Min(0f)][SerializeField] private float _actionDelay = 0.35f;
+    [Tooltip("한 칸 이동하는 데 걸리는 시간")]
+    [Min(0.01f)][SerializeField] private float _moveTime = 0.12f;
+
+    [Header("보스")]
+    [Tooltip("켜면 이 적이 죽는 즉시 스테이지 클리어 (남은 부하가 있어도). 보스방 RoomData 의 Room Type 이 Boss 면 방의 적을 모두 잡아도 클리어")]
+    [SerializeField] private bool _isBoss;
 
     [Header("구성 요소 (비워두면 이 오브젝트와 자식에서 찾는다)")]
     [SerializeField] private EnemyHealth _health;
@@ -62,6 +69,20 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
     public EnemyAction LastAction { get; private set; }
     public int ConsecutiveCount { get; private set; }
     public int ActionCount { get; private set; }
+
+    /// <summary>현재 페이즈(PhaseActionSelector)에 들어온 뒤 실행한 행동 수. 페이즈가 없으면 ActionCount 와 같다</summary>
+    public int PhaseActionCount => ActionCount - _phaseStartActionCount;
+
+    /// <summary>PhaseActionSelector 가 쓰는 현재 페이즈 번호 (-1 = 아직 없음)</summary>
+    public int SelectorPhase { get; private set; } = -1;
+
+    /// <summary>힘: 공격 피해에 더해진다 (패턴의 힘 단계로 증감)</summary>
+    public int Strength { get; private set; }
+
+    public bool IsBoss => _isBoss;
+    public float MoveTime => _moveTime;
+
+    private int _phaseStartActionCount;
 
     public bool IsAlive => _health == null || !_health.IsDead;
 
@@ -191,6 +212,94 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
             _bodySprite.flipX = dir.x < 0;
     }
 
+    // ───────────────────────── 패턴 단계용 (이동, 힘, 페이즈) ─────────────────────────
+
+    /// <summary>플레이어가 같은 방에 있는지</summary>
+    public bool IsPlayerInRoom => Player != null && Room != null && Player.CurrentRoom == Room.Grid;
+
+    /// <summary>플레이어까지 칸 거리 (상하좌우 걸음 수 기준, 같은 방이 아니면 -1)</summary>
+    public int DistanceToPlayer()
+    {
+        if (!IsPlayerInRoom) return -1;
+        Vector2Int d = Player.Cell - Cell;
+        return Mathf.Abs(d.x) + Mathf.Abs(d.y);
+    }
+
+    public void AddStrength(int amount)
+    {
+        Strength += amount;
+    }
+
+    /// <summary>PhaseActionSelector 가 호출. 새 페이즈부터 행동 순번을 다시 0 으로 셀 수 있게 한다</summary>
+    /// <param name="skipNextAction">이번에 페이즈 진입 행동을 하면 true (그 행동은 순번에서 뺀다)</param>
+    public void EnterSelectorPhase(int phase, bool skipNextAction)
+    {
+        SelectorPhase = phase;
+        _phaseStartActionCount = ActionCount + (skipNextAction ? 1 : 0);
+    }
+
+    /// <summary>이 칸으로 들어갈 수 있는지 (바닥 안, 막히지 않음, 플레이어 칸 아님)</summary>
+    public bool CanEnter(Vector2Int cell)
+    {
+        if (Room == null) return false;
+        RoomGrid grid = Room.Grid;
+        if (!grid.InBounds(cell) || !grid.IsWalkable(cell)) return false;
+        if (IsPlayerInRoom && Player.Cell == cell) return false;
+        return true;
+    }
+
+    /// <summary>
+    /// 옆 칸으로 한 칸 이동 (격자 정보도 같이 갱신: 막힌 칸, 방 생성 목록 좌표).
+    /// 들어갈 수 없는 칸이면 아무것도 하지 않는다.
+    /// </summary>
+    public IEnumerator StepTo(Vector2Int cell)
+    {
+        if (!CanEnter(cell)) yield break;
+
+        RoomGrid grid = Room.Grid;
+        SpawnedEntity entity = FindSpawnedEntity();
+        bool blocks = entity == null || entity.Entry == null || entity.Entry.blocksMovement;
+
+        if (blocks)
+        {
+            grid.SetBlocked(Cell, false);
+            grid.SetBlocked(cell, true);
+        }
+
+        Vector2Int dir = cell - Cell;
+        if (Mathf.Abs(dir.x) + Mathf.Abs(dir.y) == 1) Face(dir);
+
+        Cell = cell;
+        if (entity != null) entity.Cell = cell;
+
+        Vector3 from = transform.position;
+        Vector3 world = grid.GridToWorld(cell);
+        Vector3 to = new Vector3(world.x, world.y, from.z);
+
+        float t = 0f;
+        while (t < _moveTime)
+        {
+            t += Time.deltaTime;
+            transform.position = Vector3.Lerp(from, to, Mathf.Clamp01(t / _moveTime));
+            yield return null;
+        }
+        transform.position = to;
+    }
+
+    private SpawnedEntity FindSpawnedEntity()
+    {
+        if (Room == null) return null;
+
+        IReadOnlyList<SpawnedEntity> spawned = Room.Spawned;
+        for (int i = 0; i < spawned.Count; i++)
+        {
+            SpawnedEntity s = spawned[i];
+            if (s == null || s.Object == null) continue;
+            if (s.Object == gameObject || transform.IsChildOf(s.Object.transform)) return s;
+        }
+        return null;
+    }
+
     // ───────────────────────── 내부 ─────────────────────────
 
     private void RecordAction(EnemyAction action)
@@ -211,5 +320,7 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
     private void OnDied(EnemyHealth health)
     {
         ClearIntent();
+
+        if (_isBoss) GameManager.Instance.NotifyBossDefeated();
     }
 }

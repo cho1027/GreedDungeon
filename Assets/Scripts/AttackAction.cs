@@ -32,7 +32,7 @@ public class AttackAction : EnemyAction
             enemy.Face(AttackArea.DirectionTowards(enemy.Cell, player.Cell));
 
         intent.Facing = enemy.Facing;
-        intent.Value = _damage;
+        intent.Value = Mathf.Max(0, _damage + enemy.Strength);
 
         if (enemy.Room != null)
             AttackArea.Calculate(enemy.Room.Grid, _shape, enemy.Cell, intent.Facing, _range, _stopAtObstacles, intent.Cells);

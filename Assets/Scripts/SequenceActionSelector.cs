@@ -19,7 +19,9 @@ public class SequenceActionSelector : EnemyActionSelector
         if (count == 0) return null;
 
         // 이 적이 지금까지 실행한 행동 수 = 다음 순번 (적마다 따로 센다)
-        int index = _loop ? enemy.ActionCount % count : Mathf.Min(enemy.ActionCount, count - 1);
+        // PhaseActionSelector 안에서 쓰면 페이즈가 바뀔 때마다 처음부터 다시 센다
+        int done = Mathf.Max(0, enemy.PhaseActionCount);
+        int index = _loop ? done % count : Mathf.Min(done, count - 1);
 
         // 빈 칸은 건너뛴다
         for (int i = 0; i < count; i++)

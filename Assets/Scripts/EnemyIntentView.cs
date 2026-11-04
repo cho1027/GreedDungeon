@@ -37,8 +37,9 @@ public class EnemyIntentView : MonoBehaviour
 
         if (_valueText != null)
         {
-            bool show = intent.Action.ShowValue && intent.Value > 0;
-            _valueText.text = show ? intent.Value.ToString() : string.Empty;
+            bool hasLabel = !string.IsNullOrEmpty(intent.ValueLabel);
+            bool show = intent.Action.ShowValue && (hasLabel || intent.Value > 0);
+            _valueText.text = !show ? string.Empty : (hasLabel ? intent.ValueLabel : intent.Value.ToString());
             _valueText.enabled = show;
         }
     }

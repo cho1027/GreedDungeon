@@ -21,6 +21,12 @@ public class EnemyIntent
     /// <summary>표시할 수치 (공격이면 피해량, 방어면 방어막량)</summary>
     public int Value;
 
+    /// <summary>수치 대신 표시할 글자 (예: "5x2"). 비어 있으면 Value 를 표시한다</summary>
+    public string ValueLabel;
+
+    /// <summary>행동이 계획 단계에서 저장해 두는 추가 정보 (EnemyPattern 의 단계별 계획 등)</summary>
+    public object PlanData;
+
     /// <summary>공격 범위 칸. 바닥 표시와 피해 판정이 이 목록 하나를 같이 쓴다</summary>
     public readonly List<Vector2Int> Cells = new List<Vector2Int>();
 }

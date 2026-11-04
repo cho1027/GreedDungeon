@@ -160,6 +160,19 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (healSameAmount) Heal(amount);
     }
 
+    /// <summary>
+    /// 체력을 직접 지정한다 (GameManager 가 씬이 바뀔 때 이전 체력을 옮겨올 때 사용).
+    /// 현재 체력은 1 ~ 최대 체력으로 맞추고, 사망 상태는 해제된다.
+    /// </summary>
+    public void SetHealth(int current, int max)
+    {
+        Initialize();
+        MaxHealth = Mathf.Max(1, max);
+        CurrentHealth = Mathf.Clamp(current, 1, MaxHealth);
+        IsDead = false;
+        HealthChanged?.Invoke(CurrentHealth, MaxHealth);
+    }
+
     /// <summary>시작 상태로 되돌린다 (다시 시작할 때 사용). 사망 상태도 해제된다</summary>
     public void ResetHealth()
     {

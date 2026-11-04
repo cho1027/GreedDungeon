@@ -39,6 +39,9 @@ public class EnemyHealth : MonoBehaviour, IDamageable, IRoomSpawned
     /// <summary>사망했을 때 (한 번만, 오브젝트가 제거되기 직전)</summary>
     public event Action<EnemyHealth> Died;
 
+    /// <summary>어떤 적이든 사망했을 때 (처치 수 집계 등, GameManager 가 사용)</summary>
+    public static event Action<EnemyHealth> AnyDied;
+
     private void Awake()
     {
         CurrentHealth = _maxHealth;
@@ -95,6 +98,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable, IRoomSpawned
 
         if (_logChanges) Debug.Log($"[EnemyHealth] {name} 사망", this);
         Died?.Invoke(this);
+        AnyDied?.Invoke(this);
 
         if (_removeFromRoomOnDeath && _room != null)
         {

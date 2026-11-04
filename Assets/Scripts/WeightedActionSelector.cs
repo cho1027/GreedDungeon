@@ -14,6 +14,11 @@ public class WeightedActionSelector : EnemyActionSelector
     {
         public EnemyAction action;
         [Min(0f)] public float weight = 1f;
+
+        [Tooltip("플레이어와의 거리(상하좌우 칸 수)가 이 값 이상일 때만 고른다 (0 = 제한 없음)")]
+        [Min(0)] public int minDistance = 0;
+        [Tooltip("플레이어와의 거리가 이 값 이하일 때만 고른다 (0 = 제한 없음). 예: 근접 공격은 1~2")]
+        [Min(0)] public int maxDistance = 0;
     }
 
     [SerializeField] private List<Entry> _entries = new List<Entry>();
@@ -52,6 +57,14 @@ public class WeightedActionSelector : EnemyActionSelector
     private bool IsCandidate(Entry e, EnemyController enemy, bool respectLimit)
     {
         if (e == null || e.action == null || e.weight <= 0f) return false;
+
+        // 거리 조건 (플레이어가 방에 없으면 무시)
+        int distance = enemy.DistanceToPlayer();
+        if (distance >= 0)
+        {
+            if (e.minDistance > 0 && distance < e.minDistance) return false;
+            if (e.maxDistance > 0 && distance > e.maxDistance) return false;
+        }
 
         if (respectLimit && _maxConsecutive > 0 &&
             enemy.LastAction == e.action && enemy.ConsecutiveCount >= _maxConsecutive)
