@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffcc970322863e74a86354d401379a10, type: 3}
+  m_Name: Ghoul_Selector
+  m_EditorClassIdentifier: Assembly-CSharp::Ch1GhoulSelector
+  _claw: {fileID: 11400000, guid: c0cf4926b46ef49449b6975041c62dd6, type: 2}
+  _spew: {fileID: 11400000, guid: 44aea84662c3fdf43849ce9758b5d671, type: 2}
+  _spewMinDistance: 2
+  _spewMaxDistance: 3

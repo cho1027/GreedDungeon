@@ -14,7 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomData
   _roomType: 5
   _clearedOnEnter: 0
-  _spawns: []
+  _spawns:
+  - kind: 0
+    prefab: {fileID: 4590864202627316349, guid: ad87bdcd7d6c34943bad0276745978c0, type: 3}
+    cell: {x: 5, y: 3}
+    blocksMovement: 1
+    fitToCell: 1
+    fillRatio: 0.9
   _enterTriggers:
   - {fileID: 11400000, guid: 40dc6e30ba710cd4a80cb2cf66b9f671, type: 2}
   _exitTriggers: []

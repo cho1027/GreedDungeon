@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67ebc6eff27e1664d9ea28bd42a14c14, type: 3}
+  m_Name: CorpseKing_Phase2_Selector
+  m_EditorClassIdentifier: Assembly-CSharp::Ch1AlternatingSelector
+  _groupA:
+  - {fileID: 11400000, guid: 1cf8e15f19891114faf6054bc1d8e6c5, type: 2}
+  - {fileID: 11400000, guid: f505fc34d3ef41345b9500a3a36a90e1, type: 2}
+  _groupB:
+  - {fileID: 11400000, guid: 4e50a849e7a3c2c4f96ef23164ecd0ab, type: 2}
+  - {fileID: 11400000, guid: 17bf7eee1e1561d4885d11295c7b6aae, type: 2}

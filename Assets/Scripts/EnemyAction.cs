@@ -50,6 +50,11 @@ public abstract class EnemyAction : ScriptableObject
     public bool ShowValue => _showValue;
 
     /// <summary>
+    /// 지금 이 행동을 고를 수 있는지 (소환할 칸이 없다, 이미 광폭화 중이다 등). 선택기가 확인한다.
+    /// </summary>
+    public virtual bool CanUse(EnemyController enemy) => true;
+
+    /// <summary>
     /// 다음 행동으로 확정될 때 호출. 방향, 수치, 공격 범위를 intent 에 채운다.
     /// (이 결과가 그대로 예고 표시되고, 그대로 실행된다)
     /// </summary>

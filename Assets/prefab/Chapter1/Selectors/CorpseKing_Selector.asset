@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f46b2cba58a0c4d989d0e8b7737087, type: 3}
+  m_Name: CorpseKing_Selector
+  m_EditorClassIdentifier: Assembly-CSharp::Ch1CorpseKingSelector
+  _phase1: {fileID: 11400000, guid: 1d6360472b3c4ae4ba88143549440969, type: 2}
+  _phase2: {fileID: 11400000, guid: 5fc48947e7051454c87c026602b460fa, type: 2}

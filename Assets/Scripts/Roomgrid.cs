@@ -4,39 +4,39 @@ using UnityEngine.Tilemaps;
 
 public enum DoorDirection
 {
-    North = 0, // À§ÂÊ ¹®  (5, 7)
-    South = 1, // ¾Æ·¡ÂÊ ¹® (5, -1)
-    East = 2,  // ¿À¸¥ÂÊ ¹® (11, 3)
-    West = 3   // ¿ŞÂÊ ¹®  (-1, 3)
+    North = 0, // ìœ„ìª½ ë¬¸  (5, 7)
+    South = 1, // ì•„ë˜ìª½ ë¬¸ (5, -1)
+    East = 2,  // ì˜¤ë¥¸ìª½ ë¬¸ (11, 3)
+    West = 3   // ì™¼ìª½ ë¬¸  (-1, 3)
 }
 
 /// <summary>
-/// ¹æ ÇÁ¸®ÆÕ¿¡ ºÙ´Â ÀÌµ¿ ÆÇÁ¤¿ë ±×¸®µå. (¹è°æ ÀÌ¹ÌÁö¿Í´Â º°°³)
-/// - ÁÂÇ¥´Â ¿ŞÂÊ ¾Æ·¡ ¹Ù´Ú Å¸ÀÏÀÌ (0, 0)
-/// - ±âº» 11 x 7 Àº "¹Ù´Ú"¸¸ÀÇ Å©±âÀÌ¸ç º®Àº Æ÷ÇÔÇÏÁö ¾Ê´Â´Ù
-/// - º®Àº ¹Ù´Ú ¹Ù±ù ÇÑ °ã(-1 ~ width/height)¿¡ ÀÖ°í, ¹®Àº ±× º® À§ ³× ¹æÇâ Áß¾Ó¿¡ ÀÖ´Ù
-/// - ¹æ Áß½ÉÀÌ ÇÁ¸®ÆÕ Transform À§Ä¡
+/// ë°© í”„ë¦¬íŒ¹ì— ë¶™ëŠ” ì´ë™ íŒì •ìš© ê·¸ë¦¬ë“œ. (ë°°ê²½ ì´ë¯¸ì§€ì™€ëŠ” ë³„ê°œ)
+/// - ì¢Œí‘œëŠ” ì™¼ìª½ ì•„ë˜ ë°”ë‹¥ íƒ€ì¼ì´ (0, 0)
+/// - ê¸°ë³¸ 11 x 7 ì€ "ë°”ë‹¥"ë§Œì˜ í¬ê¸°ì´ë©° ë²½ì€ í¬í•¨í•˜ì§€ ì•ŠëŠ”ë‹¤
+/// - ë²½ì€ ë°”ë‹¥ ë°”ê¹¥ í•œ ê²¹(-1 ~ width/height)ì— ìˆê³ , ë¬¸ì€ ê·¸ ë²½ ìœ„ ë„¤ ë°©í–¥ ì¤‘ì•™ì— ìˆë‹¤
+/// - ë°© ì¤‘ì‹¬ì´ í”„ë¦¬íŒ¹ Transform ìœ„ì¹˜
 /// </summary>
 public class RoomGrid : MonoBehaviour
 {
-    /// <summary>º® µÎ²²(Ä­ ¼ö)</summary>
+    /// <summary>ë²½ ë‘ê»˜(ì¹¸ ìˆ˜)</summary>
     public const int WallThickness = 1;
 
-    [Header("¹Ù´Ú ±×¸®µå Å©±â (º® Á¦¿Ü)")]
+    [Header("ë°”ë‹¥ ê·¸ë¦¬ë“œ í¬ê¸° (ë²½ ì œì™¸)")]
     [SerializeField] private int _width = 11;
     [SerializeField] private int _height = 7;
     [SerializeField] private float _cellSize = 1f;
 
-    [Tooltip("¹è°æ ÀÌ¹ÌÁö¿Í ±×¸®µå°¡ ¾È ¸ÂÀ» ¶§ ±×¸®µå Áß½ÉÀ» ¿Å±â´Â °ª (·ÎÄÃ ÁÂÇ¥)")]
+    [Tooltip("ë°°ê²½ ì´ë¯¸ì§€ì™€ ê·¸ë¦¬ë“œê°€ ì•ˆ ë§ì„ ë•Œ ê·¸ë¦¬ë“œ ì¤‘ì‹¬ì„ ì˜®ê¸°ëŠ” ê°’ (ë¡œì»¬ ì¢Œí‘œ)")]
     [SerializeField] private Vector2 _centerOffset = Vector2.zero;
 
-    [Header("¿É¼Ç")]
+    [Header("ì˜µì…˜")]
     [SerializeField] private bool _drawGizmos = true;
 
-    [Header("Tilemap ¿¬°á (¼±ÅÃ)")]
-    [Tooltip("¿¬°áÇÏ¸é ¹Ù´Ú Å¸ÀÏÀÌ ÀÖ´Â Ä­¸¸ ÀÌµ¿ °¡´ÉÇÕ´Ï´Ù. ºñ¿ì¸é ±âÁ¸ ¹æ ¹üÀ§¸¦ »ç¿ëÇÕ´Ï´Ù.")]
+    [Header("Tilemap ì—°ê²° (ì„ íƒ)")]
+    [Tooltip("ì—°ê²°í•˜ë©´ ë°”ë‹¥ íƒ€ì¼ì´ ìˆëŠ” ì¹¸ë§Œ ì´ë™ ê°€ëŠ¥í•©ë‹ˆë‹¤. ë¹„ìš°ë©´ ê¸°ì¡´ ë°© ë²”ìœ„ë¥¼ ì‚¬ìš©í•©ë‹ˆë‹¤.")]
     [SerializeField] private Tilemap _floorTilemap;
-    [Tooltip("º® Å¸ÀÏÀÌ ÀÖ´Â Ä­Àº ÀÌµ¿ÇÒ ¼ö ¾ø½À´Ï´Ù.")]
+    [Tooltip("ë²½ íƒ€ì¼ì´ ìˆëŠ” ì¹¸ì€ ì´ë™í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.")]
     [SerializeField] private Tilemap _wallTilemap;
 
     private readonly bool[] _doorOpen = new bool[4];
@@ -47,21 +47,21 @@ public class RoomGrid : MonoBehaviour
     public float CellSize => _cellSize;
     public Vector2Int Center => new Vector2Int(_width / 2, _height / 2);
 
-    /// <summary>true ¸é ¿­·Á ÀÖ´Â ¹®µµ Áö³ª°¥ ¼ö ¾ø´Ù (ÀüÅõ Áß ¹® Àá±İ µî)</summary>
+    /// <summary>true ë©´ ì—´ë ¤ ìˆëŠ” ë¬¸ë„ ì§€ë‚˜ê°ˆ ìˆ˜ ì—†ë‹¤ (ì „íˆ¬ ì¤‘ ë¬¸ ì ê¸ˆ ë“±)</summary>
     public bool DoorsLocked { get; set; }
 
-    /// <summary>±×¸®µå Áß½ÉÀÇ ¿ùµå ÁÂÇ¥ (Ä«¸Ş¶ó ¸ÂÃâ ¶§ »ç¿ë)</summary>
+    /// <summary>ê·¸ë¦¬ë“œ ì¤‘ì‹¬ì˜ ì›”ë“œ ì¢Œí‘œ (ì¹´ë©”ë¼ ë§ì¶œ ë•Œ ì‚¬ìš©)</summary>
     public Vector3 WorldCenter => transform.TransformPoint(_centerOffset);
 
-    /// <summary>ÇÁ¸®ÆÕ Scale±îÁö ¹İ¿µÇÑ Å¸ÀÏ 1Ä­ÀÇ ¿ùµå Å©±â</summary>
+    /// <summary>í”„ë¦¬íŒ¹ Scaleê¹Œì§€ ë°˜ì˜í•œ íƒ€ì¼ 1ì¹¸ì˜ ì›”ë“œ í¬ê¸°</summary>
     public float WorldCellSize => _cellSize * Mathf.Abs(transform.lossyScale.x);
 
-    /// <summary>ÇÁ¸®ÆÕ Scale±îÁö ¹İ¿µÇÑ ¹Ù´Ú ¿µ¿ªÀÇ ¿ùµå Å©±â (º® Á¦¿Ü)</summary>
+    /// <summary>í”„ë¦¬íŒ¹ Scaleê¹Œì§€ ë°˜ì˜í•œ ë°”ë‹¥ ì˜ì—­ì˜ ì›”ë“œ í¬ê¸° (ë²½ ì œì™¸)</summary>
     public Vector2 FloorWorldSize => new Vector2(
         _width * _cellSize * Mathf.Abs(transform.lossyScale.x),
         _height * _cellSize * Mathf.Abs(transform.lossyScale.y));
 
-    /// <summary>ÇÁ¸®ÆÕ Scale±îÁö ¹İ¿µÇÑ ¹æ ÀüÃ¼ÀÇ ¿ùµå Å©±â (º® Æ÷ÇÔ). ¹æ °£°İ/Ä«¸Ş¶ó °è»ê¿¡ »ç¿ë</summary>
+    /// <summary>í”„ë¦¬íŒ¹ Scaleê¹Œì§€ ë°˜ì˜í•œ ë°© ì „ì²´ì˜ ì›”ë“œ í¬ê¸° (ë²½ í¬í•¨). ë°© ê°„ê²©/ì¹´ë©”ë¼ ê³„ì‚°ì— ì‚¬ìš©</summary>
     public Vector2 WorldSize => new Vector2(
         (_width + WallThickness * 2) * _cellSize * Mathf.Abs(transform.lossyScale.x),
         (_height + WallThickness * 2) * _cellSize * Mathf.Abs(transform.lossyScale.y));
@@ -73,7 +73,7 @@ public class RoomGrid : MonoBehaviour
         _cellSize = Mathf.Max(0.01f, _cellSize);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ ÁÂÇ¥ º¯È¯ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ì¢Œí‘œ ë³€í™˜ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private Vector2 CellToLocal(Vector2Int cell)
     {
@@ -82,7 +82,7 @@ public class RoomGrid : MonoBehaviour
             (cell.y - (_height - 1) * 0.5f) * _cellSize) + _centerOffset;
     }
 
-    /// <summary>º®/¹® Ä­(¹Ù´Ú ¹Ù±ù ÁÂÇ¥)µµ º¯È¯ °¡´É</summary>
+    /// <summary>ë²½/ë¬¸ ì¹¸(ë°”ë‹¥ ë°”ê¹¥ ì¢Œí‘œ)ë„ ë³€í™˜ ê°€ëŠ¥</summary>
     public Vector3 GridToWorld(Vector2Int cell)
     {
         return transform.TransformPoint(CellToLocal(cell));
@@ -99,9 +99,9 @@ public class RoomGrid : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ ¹® ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ë¬¸ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    /// <summary>¹® Ä­ ÁÂÇ¥. ¹Ù´Ú ¹Ù±ù º® À§¿¡ ÀÖ´Ù (¿¹: ¿ŞÂÊ ¹® = (-1, 3))</summary>
+    /// <summary>ë¬¸ ì¹¸ ì¢Œí‘œ. ë°”ë‹¥ ë°”ê¹¥ ë²½ ìœ„ì— ìˆë‹¤ (ì˜ˆ: ì™¼ìª½ ë¬¸ = (-1, 3))</summary>
     public Vector2Int GetDoorCell(DoorDirection dir)
     {
         switch (dir)
@@ -113,7 +113,7 @@ public class RoomGrid : MonoBehaviour
         }
     }
 
-    /// <summary>¹® ¾Õ ¹Ù´Ú Ä­ (¹®À¸·Î ³ª°¡±â Á÷Àü Å¸ÀÏ)</summary>
+    /// <summary>ë¬¸ ì• ë°”ë‹¥ ì¹¸ (ë¬¸ìœ¼ë¡œ ë‚˜ê°€ê¸° ì§ì „ íƒ€ì¼)</summary>
     public Vector2Int GetDoorFrontCell(DoorDirection dir)
     {
         switch (dir)
@@ -158,9 +158,9 @@ public class RoomGrid : MonoBehaviour
         _doorOpen[(int)DoorDirection.West] = west;
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ ÀÌµ¿ ÆÇÁ¤ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ì´ë™ íŒì • â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    /// <summary>¹Ù´Ú ¿µ¿ª(11x7) ¾ÈÀÎÁö</summary>
+    /// <summary>ë°”ë‹¥ ì˜ì—­(11x7) ì•ˆì¸ì§€</summary>
     public bool InBounds(Vector2Int cell)
     {
         return cell.x >= 0 && cell.x < _width && cell.y >= 0 && cell.y < _height;
@@ -168,19 +168,19 @@ public class RoomGrid : MonoBehaviour
 
     public bool IsWalkable(Vector2Int cell)
     {
-        // ¹® Ä­: ¿­·Á ÀÖÀ» ¶§¸¸ Åë°ú
+        // ë¬¸ ì¹¸: ì—´ë ¤ ìˆì„ ë•Œë§Œ í†µê³¼
         if (TryGetDoorAt(cell, out DoorDirection dir))
             return _doorOpen[(int)dir] && !DoorsLocked;
 
-        // ±× ¿Ü ¹Ù´Ú ¹Ù±ùÀº ÀüºÎ º®
+        // ê·¸ ì™¸ ë°”ë‹¥ ë°”ê¹¥ì€ ì „ë¶€ ë²½
         if (!InBounds(cell)) return false;
 
         return IsTerrainWalkable(cell) && !_blocked.Contains(cell);
     }
 
     /// <summary>
-    /// Àû ÀÚ½ÅÀÇ Á¡À¯ ¿©ºÎ¸¦ Á¦¿ÜÇÑ ÁöÇü °Ë»çÀÔ´Ï´Ù. A* ½ÃÀÛ Ä­ °ËÁõ¿¡µµ »ç¿ëÇÕ´Ï´Ù.
-    /// RoomGrid ÁÂÇ¥¸¦ ¿ùµå Áß½ÉÀ¸·Î ¹Ù²Û µÚ °¢ TilemapÀÇ ¼¿ ÁÂÇ¥·Î º¯È¯ÇÕ´Ï´Ù.
+    /// ì  ìì‹ ì˜ ì ìœ  ì—¬ë¶€ë¥¼ ì œì™¸í•œ ì§€í˜• ê²€ì‚¬ì…ë‹ˆë‹¤. A* ì‹œì‘ ì¹¸ ê²€ì¦ì—ë„ ì‚¬ìš©í•©ë‹ˆë‹¤.
+    /// RoomGrid ì¢Œí‘œë¥¼ ì›”ë“œ ì¤‘ì‹¬ìœ¼ë¡œ ë°”ê¾¼ ë’¤ ê° Tilemapì˜ ì…€ ì¢Œí‘œë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public bool IsTerrainWalkable(Vector2Int cell)
     {
@@ -194,7 +194,7 @@ public class RoomGrid : MonoBehaviour
         return true;
     }
 
-    /// <summary>Àå¾Ö¹°/Àû µîÀ¸·Î Å¸ÀÏÀ» ¸·°Å³ª Ç¬´Ù</summary>
+    /// <summary>ì¥ì• ë¬¼/ì  ë“±ìœ¼ë¡œ íƒ€ì¼ì„ ë§‰ê±°ë‚˜ í‘¼ë‹¤</summary>
     public void SetBlocked(Vector2Int cell, bool blocked)
     {
         if (blocked) _blocked.Add(cell);
@@ -206,7 +206,7 @@ public class RoomGrid : MonoBehaviour
         _blocked.Clear();
     }
 
-    /// <summary>½ºÇÁ¶óÀÌÆ®°¡ Å¸ÀÏ 1Ä­ ¾È¿¡ µé¾î¿Àµµ·Ï Transform ½ºÄÉÀÏÀ» ¸ÂÃá´Ù</summary>
+    /// <summary>ìŠ¤í”„ë¼ì´íŠ¸ê°€ íƒ€ì¼ 1ì¹¸ ì•ˆì— ë“¤ì–´ì˜¤ë„ë¡ Transform ìŠ¤ì¼€ì¼ì„ ë§ì¶˜ë‹¤</summary>
     public void FitToCell(Transform target, float fill)
     {
         SpriteRenderer sr = target.GetComponentInChildren<SpriteRenderer>();
@@ -220,7 +220,7 @@ public class RoomGrid : MonoBehaviour
         target.localScale = Vector3.one * (WorldCellSize * fill / biggest);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ ¿¡µğÅÍ ±âÁî¸ğ ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ ì—ë””í„° ê¸°ì¦ˆëª¨ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void OnDrawGizmos()
     {
@@ -239,7 +239,7 @@ public class RoomGrid : MonoBehaviour
 
                 if (TryGetDoorAt(cell, out DoorDirection dir))
                 {
-                    // ÇÃ·¹ÀÌ Áß¿¡´Â ¿­¸²(ÃÊ·Ï)/´İÈû(»¡°­), ¿¡µğÅÍ¿¡¼­´Â ³ë¶û
+                    // í”Œë ˆì´ ì¤‘ì—ëŠ” ì—´ë¦¼(ì´ˆë¡)/ë‹«í˜(ë¹¨ê°•), ì—ë””í„°ì—ì„œëŠ” ë…¸ë‘
                     if (Application.isPlaying)
                         Gizmos.color = _doorOpen[(int)dir] ? new Color(0.2f, 1f, 0.2f, 0.9f) : new Color(1f, 0.2f, 0.2f, 0.9f);
                     else
@@ -247,11 +247,11 @@ public class RoomGrid : MonoBehaviour
                 }
                 else if (!InBounds(cell))
                 {
-                    Gizmos.color = new Color(1f, 0.3f, 0.3f, 0.35f); // º®
+                    Gizmos.color = new Color(1f, 0.3f, 0.3f, 0.35f); // ë²½
                 }
                 else
                 {
-                    Gizmos.color = new Color(1f, 1f, 1f, 0.25f);     // ¹Ù´Ú
+                    Gizmos.color = new Color(1f, 1f, 1f, 0.25f);     // ë°”ë‹¥
                 }
 
                 Gizmos.DrawWireCube(pos, size);

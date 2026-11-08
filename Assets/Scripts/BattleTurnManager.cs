@@ -21,6 +21,13 @@ public enum BattlePhase
 /// - 살아 있는 적 = 현재 방 DungeonRoom.Spawned 중 kind 가 Monster 이고, 오브젝트가 남아 있고 활성 상태인 것
 ///   (IEnemyTurnActor 가 있으면 IsAlive 도 확인).
 /// - PlayerHealth 가 사망하면 이동, 카드 사용, 턴 종료를 모두 막고 진행 중인 적 턴을 멈춘다.
+///
+/// 플레이어 방어도 / 상태 이상
+/// - 플레이어에 DamageShield(방어도)와 StatusEffectHolder(상태 이상)를 자동으로 붙인다.
+/// - 방어도: 적 공격 피해를 먼저 막는다. 플레이어 턴이 시작될 때 사라진다.
+/// - 플레이어 턴 종료: 부패 지대 피해 → 상태 이상 처리(부패 피해, 남은 턴 감소)
+/// - 적 턴 시작: 지연 공격(대지 붕괴 등) 발동
+/// - 속박(Root) 상태에서는 이동할 수 없다 (방향 전환, 카드는 가능)
 /// 씬에 하나만 둔다.
 /// </summary>
 public class BattleTurnManager : MonoBehaviour
@@ -58,6 +65,9 @@ public class BattleTurnManager : MonoBehaviour
     private Coroutine _enemyTurnRoutine;
     private readonly List<GameObject> _enemyBuffer = new List<GameObject>();
     private readonly List<IEnemyTurnActor> _actorBuffer = new List<IEnemyTurnActor>();
+    private DamageShield _playerShield;
+    private StatusEffectHolder _playerStatus;
+    private bool _cutscene;
 
     public BattlePhase Phase { get; private set; } = BattlePhase.Exploration;
     public int CurrentCost { get; private set; }
@@ -86,8 +96,25 @@ public class BattleTurnManager : MonoBehaviour
     public RoomEconomy Economy { get; set; }
     public PlayerHealth PlayerHealth => _playerHealth;
 
+    /// <summary>플레이어 방어도 (방어 카드가 여기에 쌓는다)</summary>
+    public DamageShield PlayerShield => _playerShield;
+
+    /// <summary>플레이어 상태 이상 (부패, 속박 ...)</summary>
+    public StatusEffectHolder PlayerStatus => _playerStatus;
+
     /// <summary>플레이어가 사망했는지 (사망 후에는 어떤 행동도 할 수 없다)</summary>
     public bool IsPlayerDead => _playerHealth != null && _playerHealth.IsDead;
+
+    /// <summary>연출(보스 페이즈 전환 등) 중이면 true. 이동, 카드, 턴 종료가 막힌다</summary>
+    public bool IsCutscene
+    {
+        get => _cutscene;
+        set
+        {
+            _cutscene = value;
+            RefreshUI();
+        }
+    }
 
     public bool IsInCombat => Phase != BattlePhase.Exploration;
     public bool IsPlayerTurn => Phase == BattlePhase.PlayerTurn;
@@ -122,11 +149,15 @@ public class BattleTurnManager : MonoBehaviour
             _playerHealth = _player.GetComponent<PlayerHealth>();
 
         if (_playerHealth != null) _playerHealth.CardState = CardState;
-        if (_player != null && _playerHealth != null)
+
+        // 플레이어 방어도 / 상태 이상 (씬에 따로 붙이지 않아도 되게 자동으로)
+        if (_player != null)
         {
-            DamageShield shield = _player.GetComponent<DamageShield>();
-            if (shield == null) shield = _player.gameObject.AddComponent<DamageShield>();
-            _playerHealth.RegisterAbsorber(shield);
+            _playerShield = _player.GetComponent<DamageShield>();
+            if (_playerShield == null) _playerShield = _player.gameObject.AddComponent<DamageShield>();
+            _playerStatus = StatusEffectHolder.GetOrAdd(_player.gameObject);
+
+            if (_playerHealth != null) _playerHealth.RegisterAbsorber(_playerShield);
         }
     }
 
@@ -234,6 +265,7 @@ public class BattleTurnManager : MonoBehaviour
     {
         StopEnemyTurn();
         CardState.Reset();
+        HazardZones.Find(room)?.ClearAll();
         CurrentRoom = null;
         SetExploration(false); // 방 이동 연출 동안은 ∞ 표시, 버튼 숨김
     }
@@ -257,6 +289,7 @@ public class BattleTurnManager : MonoBehaviour
     {
         if (IsPlayerDead) return;
         if (CurrentRoom == null) return;
+        if (_cutscene) return;
         if (_roomController != null && _roomController.IsTransitioning) return;
 
         // 적 턴 진행 중에는 코루틴이 끝날 때 직접 판정한다
@@ -298,14 +331,16 @@ public class BattleTurnManager : MonoBehaviour
 
     private void BeginPlayerTurn()
     {
+        // 지난 플레이어 턴에 얻은 방어도는 여기서 사라진다
+        if (_playerShield != null) _playerShield.TickTurn();
+
         SetPhase(BattlePhase.PlayerTurn);
         _turnCostPenalty = _nextTurnCostPenalty;
         _nextTurnCostPenalty = 0;
         SetCost(MaxCost + (CardState.HasGenerator ? 1 : 0));
         if (_player != null)
         {
-            CardState.BeginTurn(_player.Cell);
-            _player.GetComponent<DamageShield>()?.Clear();
+            CardState.BeginTurn(_player.Cell); // 방어막은 위의 TickTurn 에서 정리 (1턴짜리는 여기서 사라짐)
         }
         PlayerTurnStarted?.Invoke();
     }
@@ -318,6 +353,11 @@ public class BattleTurnManager : MonoBehaviour
         _nextTurnCostPenalty = 0;
         SetPhase(BattlePhase.Exploration);
         SetCost(_maxCost); // 내부 값만 초기화 (화면에는 ∞)
+
+        // 전투가 끝나면 방어도, 상태 이상, 바닥 효과를 정리한다
+        if (_playerShield != null) _playerShield.Clear();
+        if (_playerStatus != null) _playerStatus.ClearAll();
+        HazardZones.Find(CurrentRoom)?.ClearAll();
 
         if (combatWon && CurrentRoom != null)
         {
@@ -348,6 +388,7 @@ public class BattleTurnManager : MonoBehaviour
     {
         if (Economy != null && Economy.BlocksAction) return false;
         if (IsPlayerDead) return false;
+        if (_cutscene) return false;
         if (Phase == BattlePhase.EnemyTurn) return false;
         if (_roomController != null && _roomController.IsTransitioning) return false;
         return true;
@@ -381,9 +422,18 @@ public class BattleTurnManager : MonoBehaviour
         return true;
     }
 
+    /// <summary>속박 등으로 이동이 막혔는지</summary>
+    public bool IsPlayerRooted => Phase != BattlePhase.Exploration &&
+                                  _playerStatus != null && _playerStatus.Has(StatusType.Root);
+
     private bool CanPlayerMove()
     {
         RefreshCombatState();
+        if (IsPlayerRooted)
+        {
+            Debug.Log("[Battle] 속박 상태라 이동할 수 없습니다.");
+            return false;
+        }
         return CanAfford(_moveCost);
     }
 
@@ -415,6 +465,7 @@ public class BattleTurnManager : MonoBehaviour
     public void EndPlayerTurn()
     {
         if (IsPlayerDead) return;
+        if (_cutscene) return;
         if (Phase != BattlePhase.PlayerTurn) return;
         if (_enemyTurnRoutine != null) return;
         if (_roomController != null && _roomController.IsTransitioning) return;
@@ -424,7 +475,23 @@ public class BattleTurnManager : MonoBehaviour
         PlayerTurnEnded?.Invoke();
         CardState.EndTurn(this);
 
+        // 플레이어 턴 종료 효과: 부패 지대 → 상태 이상 (부패 피해, 남은 턴 감소)
+        ApplyPlayerTurnEndEffects();
+        if (IsPlayerDead)
+        {
+            RefreshUI();
+            return;
+        }
+
         _enemyTurnRoutine = StartCoroutine(EnemyTurnRoutine());
+    }
+
+    private void ApplyPlayerTurnEndEffects()
+    {
+        HazardZones.Find(CurrentRoom)?.OnPlayerTurnEnd(_player, _playerHealth);
+        if (IsPlayerDead) return;
+
+        if (_playerStatus != null) _playerStatus.TickTurnEnd(_playerHealth);
     }
 
     private IEnumerator EnemyTurnRoutine()
@@ -437,14 +504,20 @@ public class BattleTurnManager : MonoBehaviour
         if (_enemyTurnStartDelay > 0f)
             yield return new WaitForSeconds(_enemyTurnStartDelay);
 
+        // 지난 적 턴에 예고해 둔 지연 공격(대지 붕괴 등) 발동
+        HazardZones.Find(CurrentRoom)?.OnEnemyTurnStart(_player, _playerHealth);
+
         // 턴 시작 시점에 살아 있는 적 목록 (행동 중 목록이 바뀌어도 안전하게)
         _enemyBuffer.Clear();
-        CollectAliveEnemies(_enemyBuffer);
+        if (!IsPlayerDead) CollectAliveEnemies(_enemyBuffer);
         var enemies = new List<GameObject>(_enemyBuffer);
 
         foreach (GameObject enemy in enemies)
         {
             if (!IsEnemyAlive(enemy)) continue;
+
+            // 보스 페이즈 전환 등 연출이 끝날 때까지 기다린다
+            while (_cutscene) yield return null;
 
             _actorBuffer.Clear();
             enemy.GetComponentsInChildren(false, _actorBuffer);
@@ -472,6 +545,8 @@ public class BattleTurnManager : MonoBehaviour
 
             if (IsPlayerDead) break;
         }
+
+        while (_cutscene) yield return null;
 
         _enemyTurnRoutine = null;
 
@@ -558,6 +633,6 @@ public class BattleTurnManager : MonoBehaviour
         }
 
         if (_endTurnButton != null)
-            _endTurnButton.interactable = Phase == BattlePhase.PlayerTurn && !IsPlayerDead; // 적 턴, 사망 시 비활성
+            _endTurnButton.interactable = Phase == BattlePhase.PlayerTurn && !IsPlayerDead && !_cutscene; // 적 턴, 사망, 연출 중 비활성
     }
 }

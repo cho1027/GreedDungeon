@@ -91,6 +91,40 @@ public class EnemyHealth : MonoBehaviour, IDamageable, IRoomSpawned
         return result;
     }
 
+    /// <summary>체력 회복 (생명력 흡수 등). 최대 체력을 넘지 않는다. 실제 회복량을 반환</summary>
+    public int Heal(int amount)
+    {
+        if (IsDead || amount <= 0) return 0;
+
+        int before = CurrentHealth;
+        CurrentHealth = Mathf.Min(_maxHealth, CurrentHealth + amount);
+        int healed = CurrentHealth - before;
+
+        if (healed > 0)
+        {
+            if (_logChanges) Debug.Log($"[EnemyHealth] {name} 회복 +{healed} → {CurrentHealth} / {_maxHealth}", this);
+            HealthChanged?.Invoke(CurrentHealth, _maxHealth);
+        }
+        return healed;
+    }
+
+    /// <summary>방어막과 상관없이 즉시 사망 (사령술사가 죽을 때 소환수 정리 등)</summary>
+    public void Kill()
+    {
+        if (IsDead) return;
+        CurrentHealth = 0;
+        HealthChanged?.Invoke(CurrentHealth, _maxHealth);
+        Die();
+    }
+
+    /// <summary>피해를 먼저 흡수할 것(방어막, 보스 페이즈 잠금 등)을 등록한다. 같은 오브젝트에 붙은 것은 자동 등록된다</summary>
+    public void RegisterAbsorber(IDamageAbsorber absorber)
+    {
+        if (absorber == null || _absorbers.Contains(absorber)) return;
+        _absorbers.Add(absorber);
+        _absorbers.Sort((a, b) => a.Order.CompareTo(b.Order));
+    }
+
     private void Die()
     {
         if (IsDead) return;

@@ -1,6 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 여러 칸을 차지하는 대상 (시체왕 1페이즈 신체 등). 몬스터 오브젝트에 붙이면
+/// 카드 공격이 몬스터의 기준 칸이 아니라 차지한 칸 전부를 기준으로 맞는다.
+/// </summary>
+public interface IGridFootprint
+{
+    bool Occupies(Vector2Int cell);
+    IReadOnlyList<Vector2Int> OccupiedCells { get; }
+}
+
 /// <summary>카드를 낼 때 효과에 넘겨주는 정보 (누가, 어느 방에서, 어떤 카드를 냈는지)</summary>
 public class CardContext
 {
@@ -55,11 +65,20 @@ public class CardContext
             SpawnedEntity s = spawned[i];
             if (s == null || s.Object == null || !s.Object.activeInHierarchy) continue;
 
-            // 이동하는 적이 생겨도 맞도록 EnemyController 의 현재 칸을 우선 사용
-            Vector2Int c = s.Cell;
-            EnemyController enemy = s.Object.GetComponentInChildren<EnemyController>();
-            if (enemy != null) c = enemy.Cell;
-            if (c != cell) continue;
+            // 여러 칸짜리 대상이면 차지한 칸 전부로 판정
+            IGridFootprint footprint = s.Object.GetComponentInChildren<IGridFootprint>();
+            if (footprint != null)
+            {
+                if (!footprint.Occupies(cell)) continue;
+            }
+            else
+            {
+                // 이동하는 적이 생겨도 맞도록 EnemyController 의 현재 칸을 우선 사용
+                Vector2Int c = s.Cell;
+                EnemyController enemy = s.Object.GetComponentInChildren<EnemyController>();
+                if (enemy != null) c = enemy.Cell;
+                if (c != cell) continue;
+            }
 
             IDamageable target = s.Object.GetComponentInChildren<IDamageable>();
             if (target == null || target.IsDead) continue;
