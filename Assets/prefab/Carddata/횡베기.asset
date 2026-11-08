@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8c7526830c282429b19f2ad0c86711, type: 3}
+  m_Name: 횡베기
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  _cardName: 횡베기
+  _cost: 2
+  _artwork: {fileID: 0}
+  _description: "전방 가운데와 좌우 대각선에 있는 적에게 각각 피해 5."
+  _effects:
+  - {fileID: 11400000, guid: cc0dbcf58c2b4e4abe2c8001fd074949, type: 2}
+  _plannedCard: 0
+  _innate: 0
+  _exhaust: 0
+  _retain: 0
+  _ethereal: 0
+  _lethalEffects: []

@@ -29,6 +29,8 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private readonly List<IDamageAbsorber> _absorbers = new List<IDamageAbsorber>();
     private bool _initialized;
 
+    public BattleCardState CardState { get; set; }
+
     public int CurrentHealth { get; private set; }
     public int MaxHealth { get; private set; }
     public bool IsDead { get; private set; }
@@ -81,7 +83,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         Initialize();
         if (IsDead || info.Amount <= 0) return DamageResult.None;
 
-        int remaining = info.Amount;
+        int remaining = CardState?.ReduceDamage(info.Amount) ?? info.Amount;
         int absorbed = 0;
 
         // 1) 방어막 등이 먼저 흡수
@@ -120,6 +122,13 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     // ───────────────────────── 회복 / 최대 체력 ─────────────────────────
 
     /// <summary>체력 회복. 최대 체력을 넘지 않는다. 실제 회복량을 반환 (사망 상태면 0)</summary>
+    public bool TrySpendHealth(int amount)
+    {
+        if (IsDead || amount <= 0 || CurrentHealth <= amount) return false;
+        SetCurrentHealth(CurrentHealth - amount);
+        return true;
+    }
+
     public int Heal(int amount)
     {
         Initialize();

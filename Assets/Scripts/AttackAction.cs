@@ -50,6 +50,7 @@ public class AttackAction : EnemyAction
         bool hit = player.CurrentRoom == enemy.Room?.Grid && intent.Cells.Contains(player.Cell);
         Debug.Log($"[Enemy] {enemy.name} {DisplayName} ({_shape}, {intent.Cells.Count}칸) → {(hit ? "적중" : "빗나감")}", enemy);
 
+        enemy.Manager?.CardState.HitDevices(intent.Cells, intent.Value);
         if (!hit) yield break;
 
         PlayerHealth health = enemy.Manager != null ? enemy.Manager.PlayerHealth : player.GetComponent<PlayerHealth>();

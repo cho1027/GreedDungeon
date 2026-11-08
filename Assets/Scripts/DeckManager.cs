@@ -15,11 +15,11 @@ public class DeckEntry
 /// - 덱: 섞은 뒤 Push 로 쌓고, 뽑을 때는 맨 위에서 Pop (후입선출)
 /// - 버린 카드: 버릴 때 Push, 다시 섞을 때 전부 꺼내 섞은 뒤 덱에 Push
 /// - 플레이어 턴 시작: 덱에서 Draw Per Turn 장 뽑아 패에 추가 (덱이 비면 버린 카드를 섞어 덱으로)
-/// - 카드 사용: 버린 카드 더미로
-/// - 턴 종료: 남은 패를 전부 버린 카드 더미로
+/// - 턴 종료: 사용한 카드와 보존하지 않은 손패를 버린 카드 더미로
+/// - 소멸 카드와 미사용 휘발성 카드는 이번 플레이의 전체 덱에서도 제거
 /// - 전투 시작: GameManager 의 덱(판 전체에서 유지되는 덱)으로 다시 만들고 섞음
 ///   → 보상/상점에서 GameManager.AddCard / RemoveCard 한 결과가 다음 전투부터 반영된다
-/// - 전투 종료: 패와 버린 카드를 모두 덱으로 되돌리고 섞음
+/// - 전투 종료: 남은 손패를 제거하고 다음 전투에서 전체 덱을 다시 구성
 /// 씬의 CardSystem 오브젝트에 붙어 있다.
 /// </summary>
 public class DeckManager : MonoBehaviour
@@ -40,6 +40,10 @@ public class DeckManager : MonoBehaviour
     private readonly Stack<CardData> _drawPile = new Stack<CardData>();
     private readonly Stack<CardData> _discardPile = new Stack<CardData>();
     private readonly List<CardData> _handCards = new List<CardData>();
+
+    private readonly List<CardData> _played = new List<CardData>();
+    private readonly List<CardData> _generated = new List<CardData>();
+    private bool _openingHand;
 
     public int DrawPileCount => _drawPile.Count;
     public int DiscardPileCount => _discardPile.Count;
@@ -122,6 +126,8 @@ public class DeckManager : MonoBehaviour
     {
         _drawPile.Clear();
         _discardPile.Clear();
+        _played.Clear();
+        _generated.Clear();
         _handCards.Clear();
         if (_hand != null) _hand.ClearHand();
 
@@ -132,15 +138,31 @@ public class DeckManager : MonoBehaviour
 
     private void OnCombatStarted(DungeonRoom room)
     {
-        // 전투마다 판 전체 덱에서 새로 시작 (보상으로 얻은 카드 반영, 소멸된 카드 복구)
+        // 전투마다 판 전체 덱에서 새로 시작 (보상으로 얻은 카드 반영)
         RebuildFromMasterDeck();
+        _openingHand = true;
     }
 
     // ───────────────────────── 턴 / 전투 ─────────────────────────
 
     private void OnPlayerTurnStarted()
     {
-        Draw(_drawPerTurn);
+        int count = _drawPerTurn;
+        if (_openingHand)
+        {
+            _openingHand = false;
+            var remaining = new Stack<CardData>();
+            while (_drawPile.Count > 0)
+            {
+                CardData card = _drawPile.Pop();
+                if (card.Innate && _hand != null && _hand.AddCard(card) != null)
+                    count--;
+                else
+                    remaining.Push(card);
+            }
+            while (remaining.Count > 0) _drawPile.Push(remaining.Pop());
+        }
+        Draw(count);
     }
 
     private void OnPlayerTurnEnded()
@@ -150,15 +172,9 @@ public class DeckManager : MonoBehaviour
 
     private void OnCombatEnded(DungeonRoom room)
     {
-        // 남은 패, 버린 카드를 전부 덱으로 되돌려 다음 전투 준비
-        DiscardHand();
-
-        var cards = new List<CardData>(_drawPile);
-        cards.AddRange(_discardPile);
-        _drawPile.Clear();
-        _discardPile.Clear();
-
-        PushShuffled(cards);
+        _played.Clear();
+        _handCards.Clear();
+        if (_hand != null) _hand.ClearHand();
         RefreshUI();
     }
 
@@ -190,10 +206,36 @@ public class DeckManager : MonoBehaviour
     /// <summary>남은 패를 전부 버린 카드 더미로 보낸다</summary>
     public void DiscardHand()
     {
-        foreach (CardData card in _handCards) _discardPile.Push(card);
-        _handCards.Clear();
-        if (_hand != null) _hand.ClearHand();
+        foreach (CardData card in _played) _discardPile.Push(card);
+        _played.Clear();
+        foreach (CardData card in _handCards)
+        {
+            if (card.Ethereal) Exhaust(card);
+            else if (!card.Retain) _discardPile.Push(card);
+        }
+        _handCards.RemoveAll(card => !card.Retain || card.Ethereal);
+        if (_hand != null) _hand.RemoveUnretainedCards();
         RefreshUI();
+    }
+
+    public void GainToHand(CardData card)
+    {
+        if (card == null || _hand == null) return;
+        _generated.Add(card);
+        if (_hand.AddCard(card) == null) _discardPile.Push(card);
+        RefreshUI();
+    }
+
+    public void ShuffleHandIntoDraw()
+    {
+        int count = _handCards.Count;
+        var cards = new List<CardData>(_drawPile);
+        cards.AddRange(_handCards);
+        _drawPile.Clear();
+        _handCards.Clear();
+        _hand.ClearHand();
+        PushShuffled(cards);
+        Draw(count);
     }
 
     private void OnCardAdded(CardData card)
@@ -205,8 +247,13 @@ public class DeckManager : MonoBehaviour
     {
         if (card == null) return;
         _handCards.Remove(card);
-        _discardPile.Push(card);
-        RefreshUI();
+        if (card.Exhaust) Exhaust(card);
+        else _played.Add(card);
+    }
+
+    private void Exhaust(CardData card)
+    {
+        if (!_generated.Remove(card)) GameManager.Instance.RemoveCard(card);
     }
 
     // ───────────────────────── 기타 ─────────────────────────

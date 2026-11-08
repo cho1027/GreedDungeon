@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8c7526830c282429b19f2ad0c86711, type: 3}
+  m_Name: 폭탄
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  _cardName: 폭탄
+  _cost: 2
+  _artwork: {fileID: 0}
+  _description: "선택한 칸에 설치합니다. 턴 종료 시 주변 3×3에 있는 적과 자신에게 피해 15."
+  _effects: []
+  _plannedCard: 8
+  _innate: 0
+  _exhaust: 0
+  _retain: 0
+  _ethereal: 0
+  _lethalEffects: []

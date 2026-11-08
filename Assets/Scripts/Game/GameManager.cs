@@ -340,7 +340,7 @@ public class GameManager : MonoBehaviour
 
     private void OnCombatEnded(DungeonRoom room)
     {
-        if (room != null && room.Data != null && room.Data.RoomType == RoomType.Boss)
+        if (_battle.Economy == null && room != null && room.Data != null && room.Data.RoomType == RoomType.Boss)
             NotifyBossDefeated();
     }
 

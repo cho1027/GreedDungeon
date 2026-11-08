@@ -4,18 +4,45 @@ using UnityEngine;
 /// <summary>카드를 낼 때 효과에 넘겨주는 정보 (누가, 어느 방에서, 어떤 카드를 냈는지)</summary>
 public class CardContext
 {
-    public CardContext(CardData card, BattleTurnManager manager, GridPlayer player, DungeonRoom room)
+    public CardContext(CardData card, BattleTurnManager manager, GridPlayer player, DungeonRoom room, DeckManager deck = null)
     {
         Card = card;
         Manager = manager;
         Player = player;
         Room = room;
+        Deck = deck;
+    }
+
+    public bool Killed { get; private set; }
+    private int? _nextAttackStrength;
+
+    public void BeginAttack()
+    {
+        _nextAttackStrength ??= Manager?.ConsumeNextAttackStrength() ?? 0;
+    }
+
+    public DamageResult Attack(IDamageable target, int amount)
+    {
+        BeginAttack();
+        DamageResult result = target.TakeDamage(DamageInfo.Attack(
+            Mathf.Max(0, amount + (Manager != null ? Manager.CardStrength : 0) + _nextAttackStrength.Value), Player.gameObject));
+        Killed |= result.Killed;
+        return result;
+    }
+
+    public void ApplyLethalEffects()
+    {
+        if (!Killed) return;
+        Killed = false;
+        foreach (CardEffect effect in Card.LethalEffects)
+            if (effect != null) effect.Apply(this);
     }
 
     public CardData Card { get; }
     public BattleTurnManager Manager { get; }
     public GridPlayer Player { get; }
     public DungeonRoom Room { get; }
+    public DeckManager Deck { get; }
 
     /// <summary>이 칸에 있는, 피해를 받을 수 있는 살아 있는 대상(적 등)을 result 에 추가한다</summary>
     public void CollectDamageablesAt(Vector2Int cell, List<IDamageable> result)
@@ -49,5 +76,7 @@ public class CardContext
 public abstract class CardEffect : ScriptableObject
 {
     /// <summary>카드가 사용됐을 때 호출된다</summary>
+    public virtual bool CanApply(CardContext context) => true;
+
     public abstract void Apply(CardContext context);
 }

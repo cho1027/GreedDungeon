@@ -239,12 +239,13 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
     }
 
     /// <summary>이 칸으로 들어갈 수 있는지 (바닥 안, 막히지 않음, 플레이어 칸 아님)</summary>
-    public bool CanEnter(Vector2Int cell)
+    public bool CanEnter(Vector2Int cell, bool forced = false)
     {
-        if (Room == null) return false;
+        if (Room == null || (!forced && Manager != null && Manager.CardState.IsRooted(this))) return false;
         RoomGrid grid = Room.Grid;
         if (!grid.InBounds(cell) || !grid.IsWalkable(cell)) return false;
         if (IsPlayerInRoom && Player.Cell == cell) return false;
+        if (Manager != null && Manager.CardState.Occupies(cell)) return false;
         return true;
     }
 
@@ -256,6 +257,31 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
     {
         if (!CanEnter(cell)) yield break;
 
+        Vector3 from = transform.position;
+        Vector3 to = MoveToCell(cell);
+        if (!IsAlive) yield break;
+
+        float t = 0f;
+        while (t < _moveTime)
+        {
+            t += Time.deltaTime;
+            transform.position = Vector3.Lerp(from, to, Mathf.Clamp01(t / _moveTime));
+            yield return null;
+        }
+        transform.position = to;
+    }
+
+    public bool TryPush(Vector2Int direction)
+    {
+        Vector2Int cell = Cell + direction;
+        if (!CanEnter(cell, forced: true)) return false;
+        Vector3 position = MoveToCell(cell);
+        if (IsAlive) transform.position = position;
+        return true;
+    }
+
+    private Vector3 MoveToCell(Vector2Int cell)
+    {
         RoomGrid grid = Room.Grid;
         SpawnedEntity entity = FindSpawnedEntity();
         bool blocks = entity == null || entity.Entry == null || entity.Entry.blocksMovement;
@@ -271,19 +297,9 @@ public class EnemyController : MonoBehaviour, IEnemyTurnActor, IEnemyCombatListe
 
         Cell = cell;
         if (entity != null) entity.Cell = cell;
-
-        Vector3 from = transform.position;
+        Manager?.CardState.TriggerTrap(this);
         Vector3 world = grid.GridToWorld(cell);
-        Vector3 to = new Vector3(world.x, world.y, from.z);
-
-        float t = 0f;
-        while (t < _moveTime)
-        {
-            t += Time.deltaTime;
-            transform.position = Vector3.Lerp(from, to, Mathf.Clamp01(t / _moveTime));
-            yield return null;
-        }
-        transform.position = to;
+        return new Vector3(world.x, world.y, transform.position.z);
     }
 
     private SpawnedEntity FindSpawnedEntity()

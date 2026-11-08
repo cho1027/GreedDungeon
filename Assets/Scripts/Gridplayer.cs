@@ -202,10 +202,19 @@ public class GridPlayer : MonoBehaviour
         if (CurrentRoom == null || IsMoving) return false;
 
         Vector2Int target = Cell + dir;
-        if (!CurrentRoom.IsWalkable(target)) return false;
+        if (!CurrentRoom.IsWalkable(target) ||
+            GetComponent<PlayerHealth>()?.CardState?.Occupies(target) == true) return false;
 
         Cell = target;
         Face(dir);
+        StartCoroutine(MoveRoutine(CurrentRoom.GridToWorld(target)));
+        return true;
+    }
+
+    public bool TryTeleport(Vector2Int target)
+    {
+        if (CurrentRoom == null || IsMoving || !CurrentRoom.IsWalkable(target)) return false;
+        Cell = target;
         StartCoroutine(MoveRoutine(CurrentRoom.GridToWorld(target)));
         return true;
     }
