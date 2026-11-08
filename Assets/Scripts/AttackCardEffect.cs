@@ -31,6 +31,7 @@ public class AttackCardEffect : CardEffect
             return;
         }
 
+        context.BeginAttack();
         var cells = new List<Vector2Int>();
         AttackArea.Calculate(room.Grid, _shape, player.Cell, player.Facing, _range, _stopAtObstacles, cells);
 
@@ -48,7 +49,7 @@ public class AttackCardEffect : CardEffect
         foreach (IDamageable target in targets)
         {
             if (target == null || target.IsDead) continue;
-            target.TakeDamage(DamageInfo.Attack(_damage, player.gameObject));
+            context.Attack(target, _damage);
         }
     }
 }

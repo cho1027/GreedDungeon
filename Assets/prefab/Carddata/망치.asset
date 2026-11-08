@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8c7526830c282429b19f2ad0c86711, type: 3}
+  m_Name: 망치
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  _cardName: 망치
+  _cost: 2
+  _artwork: {fileID: 0}
+  _description: "전방 3×3 범위의 적에게 피해 9."
+  _effects:
+  - {fileID: 11400000, guid: a4fbe61f9fd8455eb27a006f39fbdf4b, type: 2}
+  _plannedCard: 0
+  _innate: 0
+  _exhaust: 0
+  _retain: 0
+  _ethereal: 0
+  _lethalEffects: []

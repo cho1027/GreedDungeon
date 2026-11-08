@@ -434,6 +434,9 @@ MonoBehaviour:
   _specialRooms:
   - label: Gold
     prefab: {fileID: -1901346138513711425, guid: fa124b2aecec28440a7ad32e0b0ded01, type: 3}
+    count: 2
+  - label: Shop
+    prefab: {fileID: -1901346138513711425, guid: 0f7f810405a24880b34fe270b0f69826, type: 3}
     count: 3
   - label: Rest
     prefab: {fileID: -1901346138513711425, guid: 2698d92829e24f8a8a33377fa7ab67b0, type: 3}
@@ -2872,6 +2875,7 @@ GameObject:
   - component: {fileID: 2110000302}
   - component: {fileID: 2110000303}
   - component: {fileID: 2110000304}
+  - component: {fileID: 2110000305}
   m_Layer: 0
   m_Name: CardSystem
   m_TagString: Untagged
@@ -2910,7 +2914,35 @@ MonoBehaviour:
   _hand: {fileID: 2015874948}
   _startingDeck:
   - card: {fileID: 11400000, guid: 8a6d2b7f4c9e4d1f3b0a5c6d7e8f9a01, type: 2}
-    count: 10
+    count: 1
+  - card: {fileID: 11400000, guid: e81f95d817654515bce40c796be844a6, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 70045e57018446bd97fabfa6e0e32627, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: e16afde35a074636a4cdbb9c2666b005, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: ee2d6c3b517f49d294a1f5119063851a, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 3ff261f216d3413685da4a6da77a41ce, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: f0040b5efab943a29ac21aa585268f4c, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 0d5f1e17c66a4cb1a22a275e7263085d, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: cd6f000a21cd494e9f9f01da985f02b4, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 67f399403c9d47f4a5369cf22b4c7461, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: d9cdf20b916f46668dd072394a6b46b9, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 897b7feefc8640ac8c8e14365d68ba6b, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: fa86131cfbee44bbb1702a2285849354, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 14b448eccdcf49619b531ffa4d8dce0a, type: 2}
+    count: 1
+  - card: {fileID: 11400000, guid: 092bc9a72a084c77be2ec4970fcaca0f, type: 2}
+    count: 1
   _drawPerTurn: 5
   _drawPileView: {fileID: 2110000005}
   _discardPileView: {fileID: 2110000105}
@@ -2929,6 +2961,38 @@ MonoBehaviour:
   _battle: {fileID: 1741708674}
   _hand: {fileID: 2015874948}
   _player: {fileID: 1632407358}
+--- !u!114 &2110000305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2110000301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e55206c566349318536777945eda3c6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RoomEconomy
+  _battle: {fileID: 1741708674}
+  _pool:
+  - {fileID: 11400000, guid: 8a6d2b7f4c9e4d1f3b0a5c6d7e8f9a01, type: 2}
+  - {fileID: 11400000, guid: e81f95d817654515bce40c796be844a6, type: 2}
+  - {fileID: 11400000, guid: 70045e57018446bd97fabfa6e0e32627, type: 2}
+  - {fileID: 11400000, guid: e16afde35a074636a4cdbb9c2666b005, type: 2}
+  - {fileID: 11400000, guid: ee2d6c3b517f49d294a1f5119063851a, type: 2}
+  - {fileID: 11400000, guid: 3ff261f216d3413685da4a6da77a41ce, type: 2}
+  - {fileID: 11400000, guid: f0040b5efab943a29ac21aa585268f4c, type: 2}
+  - {fileID: 11400000, guid: 0d5f1e17c66a4cb1a22a275e7263085d, type: 2}
+  - {fileID: 11400000, guid: cd6f000a21cd494e9f9f01da985f02b4, type: 2}
+  - {fileID: 11400000, guid: 67f399403c9d47f4a5369cf22b4c7461, type: 2}
+  - {fileID: 11400000, guid: d9cdf20b916f46668dd072394a6b46b9, type: 2}
+  - {fileID: 11400000, guid: 897b7feefc8640ac8c8e14365d68ba6b, type: 2}
+  - {fileID: 11400000, guid: fa86131cfbee44bbb1702a2285849354, type: 2}
+  - {fileID: 11400000, guid: 14b448eccdcf49619b531ffa4d8dce0a, type: 2}
+  - {fileID: 11400000, guid: 092bc9a72a084c77be2ec4970fcaca0f, type: 2}
+  _rewardGold: 25
+  _cardPrice: 30
+  _removePrice: 20
 --- !u!1 &2120000001
 GameObject:
   m_ObjectHideFlags: 0

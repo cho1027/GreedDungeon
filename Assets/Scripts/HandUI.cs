@@ -45,7 +45,7 @@ public class HandUI : MonoBehaviour
     /// </summary>
     public event Action<CardData> CardUseStarted;
 
-    /// <summary>카드가 사용됐을 때 (살짝 커진 직후). 나중에 카드 효과는 여기서 처리하면 된다</summary>
+    /// <summary>코스트 차감 후 카드 효과를 실행한다</summary>
     public event Action<CardData> CardUsed;
 
     /// <summary>
@@ -53,6 +53,9 @@ public class HandUI : MonoBehaviour
     /// false 를 반환하면 카드는 사용되지 않고 패로 돌아간다.
     /// </summary>
     public Func<CardData, bool> CanUseCard;
+
+    public Func<CardData, Vector2, bool> CanTargetCard;
+    public Vector2 DropPosition { get; private set; }
 
     private void Awake()
     {
@@ -113,12 +116,15 @@ public class HandUI : MonoBehaviour
         bool insideHand = RectTransformUtility.RectangleContainsScreenPoint(_handArea, screenPos, eventCamera);
 
         // 손 안에 놓았거나 사용 조건이 안 되면 제자리로
-        if (insideHand || (CanUseCard != null && !CanUseCard(card.Data)))
+        if (insideHand || !_cards.Contains(card) ||
+            (CanUseCard != null && !CanUseCard(card.Data)) ||
+            (CanTargetCard != null && !CanTargetCard(card.Data, screenPos)))
         {
             Relayout();
             return;
         }
 
+        DropPosition = screenPos;
         UseCard(card);
     }
 
@@ -132,7 +138,8 @@ public class HandUI : MonoBehaviour
         // 사용 확정: 코스트 차감 등은 연출을 기다리지 않고 즉시 처리
         CardUseStarted?.Invoke(data);
 
-        card.PlayUse(() => CardUsed?.Invoke(data));
+        CardUsed?.Invoke(data);
+        card.PlayUse(null);
     }
 
     // ───────────────────────── 정렬 ─────────────────────────
@@ -166,6 +173,18 @@ public class HandUI : MonoBehaviour
     }
 
     /// <summary>패를 전부 비운다 (사용 효과 없이 제거)</summary>
+    public void RemoveUnretainedCards()
+    {
+        for (int i = _cards.Count - 1; i >= 0; i--)
+        {
+            CardData data = _cards[i].Data;
+            if (data != null && data.Retain && !data.Ethereal) continue;
+            Destroy(_cards[i].gameObject);
+            _cards.RemoveAt(i);
+        }
+        Relayout();
+    }
+
     public void ClearHand()
     {
         foreach (CardView card in _cards)

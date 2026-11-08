@@ -64,6 +64,7 @@ public class AttackStep : PatternStep
             bool hit = plan.Cells.Contains(ctx.Player.Cell);
             Debug.Log($"[Enemy] {ctx.Enemy.name} {ctx.Pattern.DisplayName} 공격 {i + 1}/{plan.Hits} → {(hit ? "적중" : "빗나감")}", ctx.Enemy);
 
+            ctx.Enemy.Manager?.CardState.HitDevices(plan.Cells, plan.Value);
             if (hit)
             {
                 PlayerHealth health = ctx.PlayerHealth;

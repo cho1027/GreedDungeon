@@ -61,9 +61,29 @@ public class BattleTurnManager : MonoBehaviour
 
     public BattlePhase Phase { get; private set; } = BattlePhase.Exploration;
     public int CurrentCost { get; private set; }
-    public int MaxCost => _maxCost;
+    public int CardStrength { get; private set; }
+    private int _nextAttackStrength;
+
+    public void AddNextAttackStrength(int amount) => _nextAttackStrength += amount;
+
+    public int ConsumeNextAttackStrength()
+    {
+        int amount = _nextAttackStrength;
+        _nextAttackStrength = 0;
+        return amount;
+    }
+    public int CardDexterity { get; private set; }
+    public void AddCardStrength(int amount) => CardStrength += amount;
+    public void AddCardDexterity(int amount) => CardDexterity += amount;
+    public BattleCardState CardState { get; } = new BattleCardState();
+
+    private int _nextTurnCostPenalty;
+    private int _turnCostPenalty;
+
+    public int MaxCost => Mathf.Max(0, _maxCost - _turnCostPenalty);
     public DungeonRoom CurrentRoom { get; private set; }
     public GridPlayer Player => _player;
+    public RoomEconomy Economy { get; set; }
     public PlayerHealth PlayerHealth => _playerHealth;
 
     /// <summary>플레이어가 사망했는지 (사망 후에는 어떤 행동도 할 수 없다)</summary>
@@ -100,6 +120,14 @@ public class BattleTurnManager : MonoBehaviour
     {
         if (_playerHealth == null && _player != null)
             _playerHealth = _player.GetComponent<PlayerHealth>();
+
+        if (_playerHealth != null) _playerHealth.CardState = CardState;
+        if (_player != null && _playerHealth != null)
+        {
+            DamageShield shield = _player.GetComponent<DamageShield>();
+            if (shield == null) shield = _player.gameObject.AddComponent<DamageShield>();
+            _playerHealth.RegisterAbsorber(shield);
+        }
     }
 
     private void OnEnable()
@@ -205,6 +233,7 @@ public class BattleTurnManager : MonoBehaviour
     private void OnRoomExited(DungeonRoom room)
     {
         StopEnemyTurn();
+        CardState.Reset();
         CurrentRoom = null;
         SetExploration(false); // 방 이동 연출 동안은 ∞ 표시, 버튼 숨김
     }
@@ -243,6 +272,10 @@ public class BattleTurnManager : MonoBehaviour
 
     private void StartCombat()
     {
+        CardStrength = 0;
+        _nextAttackStrength = 0;
+        CardDexterity = 0;
+        CardState.Reset();
         CombatStarted?.Invoke(CurrentRoom);
         NotifyEnemiesCombatStarted();
         BeginPlayerTurn();
@@ -266,13 +299,23 @@ public class BattleTurnManager : MonoBehaviour
     private void BeginPlayerTurn()
     {
         SetPhase(BattlePhase.PlayerTurn);
-        SetCost(_maxCost);
+        _turnCostPenalty = _nextTurnCostPenalty;
+        _nextTurnCostPenalty = 0;
+        SetCost(MaxCost + (CardState.HasGenerator ? 1 : 0));
+        if (_player != null)
+        {
+            CardState.BeginTurn(_player.Cell);
+            _player.GetComponent<DamageShield>()?.Clear();
+        }
         PlayerTurnStarted?.Invoke();
     }
 
     /// <param name="combatWon">전투 중 적을 모두 처치해서 넘어온 경우 true</param>
     private void SetExploration(bool combatWon)
     {
+        CardState.Reset();
+        _turnCostPenalty = 0;
+        _nextTurnCostPenalty = 0;
         SetPhase(BattlePhase.Exploration);
         SetCost(_maxCost); // 내부 값만 초기화 (화면에는 ∞)
 
@@ -293,7 +336,7 @@ public class BattleTurnManager : MonoBehaviour
 
     private void SetCost(int value)
     {
-        CurrentCost = Mathf.Clamp(value, 0, _maxCost);
+        CurrentCost = Mathf.Max(0, value);
         RefreshUI();
         CostChanged?.Invoke(CurrentCost);
     }
@@ -303,6 +346,7 @@ public class BattleTurnManager : MonoBehaviour
     /// <summary>플레이어가 지금 행동(이동, 카드)을 할 수 있는 상태인지 (코스트 제외)</summary>
     public bool CanAct()
     {
+        if (Economy != null && Economy.BlocksAction) return false;
         if (IsPlayerDead) return false;
         if (Phase == BattlePhase.EnemyTurn) return false;
         if (_roomController != null && _roomController.IsTransitioning) return false;
@@ -318,6 +362,17 @@ public class BattleTurnManager : MonoBehaviour
     }
 
     /// <summary>비용을 낸다. 낼 수 없으면 차감하지 않고 false. 탐험 상태에서는 차감 없이 true</summary>
+    public void ApplyManaSurge()
+    {
+        _nextTurnCostPenalty++;
+        GainCost(2);
+    }
+
+    public void GainCost(int amount)
+    {
+        if (IsPlayerTurn) SetCost(CurrentCost + amount);
+    }
+
     public bool TrySpend(int cost)
     {
         if (!CanAfford(cost)) return false;
@@ -367,6 +422,7 @@ public class BattleTurnManager : MonoBehaviour
         // 즉시 적 턴으로 바꿔서 연타/추가 입력을 막는다
         SetPhase(BattlePhase.EnemyTurn);
         PlayerTurnEnded?.Invoke();
+        CardState.EndTurn(this);
 
         _enemyTurnRoutine = StartCoroutine(EnemyTurnRoutine());
     }
@@ -488,7 +544,7 @@ public class BattleTurnManager : MonoBehaviour
         {
             _costText.text = Phase == BattlePhase.Exploration
                 ? _infiniteText
-                : $"{CurrentCost} / {_maxCost}";
+                : $"{CurrentCost} / {MaxCost}";
         }
 
         GameObject buttonRoot = _endTurnButtonRoot != null
