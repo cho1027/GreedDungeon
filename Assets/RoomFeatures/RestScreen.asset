@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 250605533cb84e6d9e798207fdd129c0, type: 3}
+  m_Name: RestScreen
+  m_EditorClassIdentifier:
+  treasure: 0
+  campfireLit: {fileID: 2800000, guid: c422a7f7277944229f6244ce579ded8b, type: 3}
+  campfireUnlit: {fileID: 2800000, guid: adeca684e5ca4ea280024ee53e7276a4, type: 3}
+  chestClosed: {fileID: 0}
+  chestOpen: {fileID: 0}
+  font: {fileID: 11400000, guid: 702e55e79a0da8741ae2b6b185d69c07, type: 2}
+  relicPool: []
+  developmentMode: 0

@@ -152,6 +152,7 @@ public class DungeonGenerator2D : MonoBehaviour
     [ContextMenu("Generate")]
     public void Generate()
     {
+        RoomRunData.BeginNewRun();
         ClearAll();
 
         bool success = false;
