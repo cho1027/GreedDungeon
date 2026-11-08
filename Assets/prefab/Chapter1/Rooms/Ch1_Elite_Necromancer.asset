@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4ce7e03ad775e64687e82441e1fe264, type: 3}
+  m_Name: Ch1_Elite_Necromancer
+  m_EditorClassIdentifier: Assembly-CSharp::RoomData
+  _roomType: 1
+  _clearedOnEnter: 0
+  _spawns:
+  - kind: 0
+    prefab: {fileID: 4374597717000093679, guid: 387f392c20c94dc408bd0125e411a33f, type: 3}
+    cell: {x: 6, y: 4}
+    blocksMovement: 1
+    fitToCell: 1
+    fillRatio: 0.9
+  _enterTriggers:
+  - {fileID: 11400000, guid: 40dc6e30ba710cd4a80cb2cf66b9f671, type: 2}
+  _exitTriggers: []

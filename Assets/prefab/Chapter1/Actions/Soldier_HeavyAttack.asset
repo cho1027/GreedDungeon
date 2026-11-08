@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68b1d2e67d582d045913b9f26ef8128c, type: 3}
+  m_Name: Soldier_HeavyAttack
+  m_EditorClassIdentifier: Assembly-CSharp::Ch1FanAttack
+  _displayName: "\uAC15\uACF5\uACA9"
+  _icon: {fileID: 21300000, guid: a116a39fe34d84642a629ea422c0df1f, type: 3}
+  _showValue: 1
+  _damage: 7
+  _hits: 1
+  _addStrength: 1
+  _hitInterval: 0.15
+  _decayTurns: 0
+  _decayDamage: 2
+  _rootTurns: 0
+  _lifeSteal: 0
+  _moveTowardAfter: 0
+  _includeSides: 0

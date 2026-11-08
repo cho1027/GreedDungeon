@@ -54,7 +54,7 @@ MonoBehaviour:
   southDoor: {fileID: 5250668302703132422}
   eastDoor: {fileID: 7202227202976466916}
   westDoor: {fileID: 8618939394271858110}
-  _data: {fileID: 11400000, guid: b18311e652e0639448bcf48327f2d3a0, type: 2}
+  _data: {fileID: 11400000, guid: d43682260ed05ed4d88dac91800ca6d2, type: 2}
 --- !u!114 &4487697824637237830
 MonoBehaviour:
   m_ObjectHideFlags: 0

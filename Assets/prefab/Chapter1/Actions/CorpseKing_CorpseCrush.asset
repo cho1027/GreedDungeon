@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fca1bed518589bf489d0db95f58a7304, type: 3}
+  m_Name: CorpseKing_CorpseCrush
+  m_EditorClassIdentifier: Assembly-CSharp::Ch1AreaAttack
+  _displayName: "\uC2DC\uCCB4 \uBD84\uC1C4"
+  _icon: {fileID: 21300000, guid: a116a39fe34d84642a629ea422c0df1f, type: 3}
+  _showValue: 1
+  _damage: 12
+  _hits: 1
+  _addStrength: 1
+  _hitInterval: 0.15
+  _decayTurns: 0
+  _decayDamage: 2
+  _rootTurns: 0
+  _lifeSteal: 0
+  _moveTowardAfter: 0
+  _center: 0
+  _radius: 1
+  _diamond: 0
+  _includeCenter: 0
+  _stopAtObstacles: 1
+  _centerDamage: 0
+  _rotZoneTurns: 0
+  _rotZoneDamage: 2

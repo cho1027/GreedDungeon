@@ -219,6 +219,23 @@ public class GridPlayer : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 적의 넉백 등으로 강제로 옮긴다 (입력, 코스트와 무관). 바닥 밖이나 막힌 칸이면 움직이지 않고 false.
+    /// 문 칸으로는 밀려나지 않는다.
+    /// </summary>
+    public bool ForceMove(Vector2Int target)
+    {
+        if (CurrentRoom == null) return false;
+        if (!CurrentRoom.InBounds(target) || !CurrentRoom.IsWalkable(target)) return false;
+        if (GetComponent<PlayerHealth>()?.CardState?.Occupies(target) == true) return false;
+
+        StopAllCoroutines();
+        IsMoving = false;
+        Cell = target;
+        StartCoroutine(MoveRoutine(CurrentRoom.GridToWorld(target)));
+        return true;
+    }
+
     private IEnumerator MoveRoutine(Vector3 worldTarget)
     {
         IsMoving = true;

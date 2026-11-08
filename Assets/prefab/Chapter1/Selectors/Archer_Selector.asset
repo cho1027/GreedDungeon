@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4d8f74bbfd93d46a16270d20841c70, type: 3}
+  m_Name: Archer_Selector
+  m_EditorClassIdentifier: Assembly-CSharp::Ch1ArcherSelector
+  _normalShot: {fileID: 11400000, guid: 288f378b5aba1a142a928b8aa3d19342, type: 2}
+  _pierceShot: {fileID: 11400000, guid: 53cf9c1a14dc8be46a5078518c664d8e, type: 2}
+  _diagonalShot: {fileID: 11400000, guid: 832846881aaac7d41bbee2734ab9789c, type: 2}
+  _range: 5

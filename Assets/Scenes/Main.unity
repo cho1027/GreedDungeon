@@ -446,7 +446,9 @@ MonoBehaviour:
     count: 1
   _normalRoomPrefabs:
   - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
-  - {fileID: -1901346138513711425, guid: 1b90909a205e8474cb6da4d6d842da16, type: 3}
+  - {fileID: -1901346138513711425, guid: 49047b2b9e919a044b60f4d0d5379d1a, type: 3}
+  - {fileID: -1901346138513711425, guid: a7e51766425b2e04fb9496da513174b2, type: 3}
+  - {fileID: -1901346138513711425, guid: a099739efc0fd8a42b64756360c197b2, type: 3}
   _player: {fileID: 1632407358}
 --- !u!4 &512231892
 Transform:
@@ -1355,6 +1357,12 @@ MonoBehaviour:
   _text: {fileID: 1594555844}
   _fill: {fileID: 2120000134}
   _format: '{0} / {1}'
+  _blockText: {fileID: 0}
+  _blockRoot: {fileID: 0}
+  _statusText: {fileID: 0}
+  _blockFormat: "\uBC29\uC5B4 {0}"
+  _blockColor: {r: 0.37, g: 0.71, b: 1, a: 1}
+  _statusColor: {r: 0.55, g: 0.85, b: 0.35, a: 1}
 --- !u!1 &1619450517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1667,6 +1675,9 @@ MonoBehaviour:
   _marginBottom: 0.3
   _fitToCell: 1
   _cellFill: 0.9
+  _initialFacing: 2
+  _flipWhenFacingLeft: 1
+  _facingIndicator: {fileID: 0}
 --- !u!114 &1632407359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2221,6 +2232,7 @@ MonoBehaviour:
   _format: '{0}'
   _dimWhenEmpty: 1
   _emptyAlpha: 0.4
+  _hoverScale: 1.06
 --- !u!1 &2110000011
 GameObject:
   m_ObjectHideFlags: 0
@@ -2590,6 +2602,7 @@ MonoBehaviour:
   _format: '{0}'
   _dimWhenEmpty: 1
   _emptyAlpha: 0.4
+  _hoverScale: 1.06
 --- !u!1 &2110000111
 GameObject:
   m_ObjectHideFlags: 0
@@ -3679,6 +3692,32 @@ MonoBehaviour:
   _viewport: {fileID: 2120000222}
   _content: {fileID: 2120000232}
   _roomTemplate: {fileID: 2120000244}
+  _cellSize: {x: 46, y: 34}
+  _gap: {x: 6, y: 6}
+  _centerOnCurrent: 1
+  _followSpeed: 10
+  _showAdjacentUnvisited: 1
+  _currentColor: {r: 0.98, g: 0.9, b: 0.68, a: 1}
+  _clearedColor: {r: 0.46, g: 0.43, b: 0.56, a: 1}
+  _unclearedColor: {r: 0.62, g: 0.3, b: 0.32, a: 1}
+  _unknownColor: {r: 0.22, g: 0.2, b: 0.28, a: 1}
+  _unknownIconAlpha: 0.6
+  _icons:
+  - type: 5
+    sprite: {fileID: 0}
+    color: {r: 0.95, g: 0.25, b: 0.25, a: 1}
+  - type: 2
+    sprite: {fileID: 0}
+    color: {r: 1, g: 0.82, b: 0.25, a: 1}
+  - type: 4
+    sprite: {fileID: 0}
+    color: {r: 0.35, g: 0.85, b: 0.45, a: 1}
+  - type: 3
+    sprite: {fileID: 0}
+    color: {r: 0.35, g: 0.65, b: 1, a: 1}
+  - type: 1
+    sprite: {fileID: 0}
+    color: {r: 0.75, g: 0.4, b: 0.95, a: 1}
 --- !u!1 &2120000211
 GameObject:
   m_ObjectHideFlags: 0
@@ -4154,6 +4193,16 @@ MonoBehaviour:
   _scroll: {fileID: 2130000085}
   _content: {fileID: 2130000102}
   _cardPrefab: {fileID: 3325898665723229775, guid: c2e0f6a1d8b34c5d9e7f0a1b2c3d4e5f, type: 3}
+  _columns: 5
+  _cellSize: {x: 170, y: 240}
+  _spacing: {x: 24, y: 24}
+  _padding: 20
+  _drawTitle: "\uB371"
+  _discardTitle: "\uBC84\uB9B0 \uCE74\uB4DC"
+  _titleFormat: "{0} \xB7 {1}\uC7A5"
+  _sortCostText: "\uC815\uB82C: \uCF54\uC2A4\uD2B8"
+  _sortNameText: "\uC815\uB82C: \uC774\uB984"
+  _sortMode: 0
 --- !u!1 &2130000011
 GameObject:
   m_ObjectHideFlags: 0
@@ -4374,7 +4423,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB371 \u00B7 0\uC7A5"
+  m_text: "\uB371 \xB7 0\uC7A5"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 702e55e79a0da8741ae2b6b185d69c07, type: 2}
   m_sharedMaterial: {fileID: 6137112681338812174, guid: 702e55e79a0da8741ae2b6b185d69c07, type: 2}
