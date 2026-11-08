@@ -435,6 +435,12 @@ MonoBehaviour:
   - label: Gold
     prefab: {fileID: -1901346138513711425, guid: fa124b2aecec28440a7ad32e0b0ded01, type: 3}
     count: 3
+  - label: Rest
+    prefab: {fileID: -1901346138513711425, guid: 2698d92829e24f8a8a33377fa7ab67b0, type: 3}
+    count: 1
+  - label: Treasure
+    prefab: {fileID: -1901346138513711425, guid: e5c1204fdc2f43f1ba64018603ce4a02, type: 3}
+    count: 1
   _normalRoomPrefabs:
   - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
   - {fileID: -1901346138513711425, guid: 1b90909a205e8474cb6da4d6d842da16, type: 3}
