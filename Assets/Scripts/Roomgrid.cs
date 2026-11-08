@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public enum DoorDirection
 {
@@ -31,6 +32,12 @@ public class RoomGrid : MonoBehaviour
 
     [Header("옵션")]
     [SerializeField] private bool _drawGizmos = true;
+
+    [Header("Tilemap 연결 (선택)")]
+    [Tooltip("연결하면 바닥 타일이 있는 칸만 이동 가능합니다. 비우면 기존 방 범위를 사용합니다.")]
+    [SerializeField] private Tilemap _floorTilemap;
+    [Tooltip("벽 타일이 있는 칸은 이동할 수 없습니다.")]
+    [SerializeField] private Tilemap _wallTilemap;
 
     private readonly bool[] _doorOpen = new bool[4];
     private readonly HashSet<Vector2Int> _blocked = new HashSet<Vector2Int>();
@@ -168,7 +175,23 @@ public class RoomGrid : MonoBehaviour
         // 그 외 바닥 바깥은 전부 벽
         if (!InBounds(cell)) return false;
 
-        return !_blocked.Contains(cell);
+        return IsTerrainWalkable(cell) && !_blocked.Contains(cell);
+    }
+
+    /// <summary>
+    /// 적 자신의 점유 여부를 제외한 지형 검사입니다. A* 시작 칸 검증에도 사용합니다.
+    /// RoomGrid 좌표를 월드 중심으로 바꾼 뒤 각 Tilemap의 셀 좌표로 변환합니다.
+    /// </summary>
+    public bool IsTerrainWalkable(Vector2Int cell)
+    {
+        if (!InBounds(cell)) return false;
+
+        Vector3 world = GridToWorld(cell);
+        if (_floorTilemap != null && !_floorTilemap.HasTile(_floorTilemap.WorldToCell(world)))
+            return false;
+        if (_wallTilemap != null && _wallTilemap.HasTile(_wallTilemap.WorldToCell(world)))
+            return false;
+        return true;
     }
 
     /// <summary>장애물/적 등으로 타일을 막거나 푼다</summary>
