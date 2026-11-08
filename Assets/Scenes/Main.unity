@@ -437,6 +437,12 @@ MonoBehaviour:
     count: 2
   - label: Shop
     prefab: {fileID: -1901346138513711425, guid: 0f7f810405a24880b34fe270b0f69826, type: 3}
+    count: 3
+  - label: Rest
+    prefab: {fileID: -1901346138513711425, guid: 2698d92829e24f8a8a33377fa7ab67b0, type: 3}
+    count: 1
+  - label: Treasure
+    prefab: {fileID: -1901346138513711425, guid: e5c1204fdc2f43f1ba64018603ce4a02, type: 3}
     count: 1
   _normalRoomPrefabs:
   - {fileID: -1901346138513711425, guid: 789055e224cc60d4c9add0e9f87aefa7, type: 3}
